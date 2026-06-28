@@ -173,12 +173,11 @@ body {
     display: flex;
     align-items: center;
     color: #bfaaff;
-    transition: transform 0.2s ease, color 0.2s ease;
+    transition: color 0.2s ease;
 }
 
 .portal-card:hover .card-action {
     color: #ffffff;
-    transform: translateX(4px);
 }
 
 .time-card {
