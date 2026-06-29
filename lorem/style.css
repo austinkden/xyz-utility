@@ -1,0 +1,407 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,slnt,wdth,wght,GRAD,ROND@6..144,-10..0,25..151,1..1000,0..100,0..100&display=swap');
+
+:root {
+    /* Consistent Color variables mapped from palette.css */
+    --background: #121016;
+    --surface: #1d1b20;
+    --surface-variant: #2d2a33;
+    --primary: #8859ff;
+    --primary-container: #4527a0;
+    --on-primary: #ffffff;
+    --on-surface: #e6e1e5;
+    --on-surface-variant: #cac4d0;
+    --outline: #49454f;
+    --highlight-color: #8859ff;
+    --highlight-bg: #f2edff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    font-family: 'Google Sans Flex', sans-serif;
+    user-select: text;
+    -webkit-user-drag: none;
+}
+
+*::selection {
+    color: var(--highlight-color);
+    background: var(--highlight-bg);
+}
+
+.back-link,
+.pfp-wrapper,
+.portal-title,
+.control-label,
+.slider-val,
+.copy-btn,
+.check-container,
+select,
+button {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+body {
+    min-height: 100vh;
+    background: var(--background);
+    color: var(--on-surface);
+    font-family: 'Google Sans Flex', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 15px;
+    gap: 1.5rem;
+}
+
+.pfp-wrapper {
+    width: clamp(80px, 8vw, 100px);
+    height: clamp(80px, 8vw, 100px);
+    clip-path: url('#active-clip');
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.pfp-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.portal-container {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.back-link {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--on-surface-variant);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.back-link:hover {
+    color: var(--on-surface);
+}
+
+.portal-header {
+    text-align: center;
+}
+
+.portal-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    font-variation-settings: 'ROND' 100, 'wdth' 85;
+    color: var(--on-surface);
+}
+
+/* Material 3 Card Container */
+.generator-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 28px;
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.control-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Select option wrapper */
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.settings-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.custom-select {
+    position: relative;
+    width: 100%;
+}
+
+.select-trigger {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    padding: 0.65rem 1rem;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.2s ease;
+}
+
+.select-trigger:focus,
+.custom-select.open .select-trigger {
+    border-color: var(--primary);
+}
+
+.chevron-icon {
+    transition: transform 0.2s ease;
+    color: var(--on-surface-variant);
+}
+
+.custom-select.open .chevron-icon {
+    transform: rotate(180deg);
+}
+
+.select-options {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    z-index: 10;
+    display: none;
+    flex-direction: column;
+    padding: 0.25rem;
+}
+
+.custom-select.open .select-options {
+    display: flex;
+}
+
+.option {
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--on-surface-variant);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.option:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--on-surface);
+}
+
+.option.active {
+    background: var(--primary-container);
+    color: #ffffff;
+}
+
+/* Number Input Controls */
+input[type="number"] {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    padding: 0.65rem 1rem;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: border-color 0.2s ease;
+}
+
+input[type="number"]:focus {
+    border-color: var(--primary);
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Custom Checklist checkboxes */
+.options-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--outline);
+    border-radius: 16px;
+    padding: 1rem;
+}
+
+.check-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--on-surface);
+    gap: 0.75rem;
+}
+
+.check-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.check-box {
+    width: 20px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--outline);
+    border-radius: 6px;
+    position: relative;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.check-container:hover input ~ .check-box {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.check-container input:checked ~ .check-box {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+.check-box::after {
+    content: "";
+    position: absolute;
+    display: none;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.check-container input:checked ~ .check-box::after {
+    display: block;
+}
+
+/* Main Generate button */
+.generate-btn {
+    width: 100%;
+    background: var(--primary-container);
+    border: 1px solid var(--primary);
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.75rem;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.generate-btn:hover {
+    background: var(--primary);
+}
+
+.generate-btn:active {
+    transform: scale(0.99);
+}
+
+/* Output fields */
+.copy-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.copy-btn:hover {
+    color: var(--on-surface);
+}
+
+textarea {
+    width: 100%;
+    height: 160px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--outline);
+    border-radius: 16px;
+    padding: 1rem;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 500;
+    resize: vertical;
+    line-height: 1.6;
+    transition: border-color 0.2s ease;
+}
+
+#output-text {
+    background: rgba(0, 0, 0, 0.15);
+    color: var(--on-surface-variant);
+}
+
+/* Toast popup styling */
+.toast-popup {
+    position: fixed;
+    bottom: 2rem;
+    background: var(--surface-variant);
+    border: 1px solid var(--outline);
+    color: var(--on-surface);
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 1000;
+}
+
+.toast-popup.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .back-link {
+        top: 20px;
+        left: 20px;
+    }
+}

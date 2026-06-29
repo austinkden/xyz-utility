@@ -4,16 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Utilities - Austin Strong</title>
-    <link rel="icon" href="../assets/images/pfp-nine-sided-cookie.png" type="image/png">
+    <title>Text Toolkit - Austin Strong</title>
+    <link rel="icon" href="../../assets/images/pfp-nine-sided-cookie.png" type="image/png">
     <link rel="stylesheet" href="style.css?v=2">
 
     <!-- Discord & Open Graph Meta Tags -->
     <meta name="theme-color" content="#8859ff">
-    <meta property="og:title" content="Austin Strong - Utilities">
-    <meta property="og:description" content="View my active utilities.">
+    <meta property="og:title" content="Austin Strong - Text Toolkit">
+    <meta property="og:description" content="Clean strings, transform casing, and run string encoders instantly.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://astrong.xyz/utility/">
+    <meta property="og:url" content="https://astrong.xyz/utility/text/">
     <meta property="og:image" content="https://astrong.xyz/assets/images/pfp-nine-sided-cookie.png">
     <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -52,195 +52,99 @@
 
     <!-- Animated cookie shape at top of page -->
     <div class="pfp-wrapper">
-        <img src="../assets/images/pfp.png" alt="Profile Cookie">
+        <img src="../../assets/images/pfp.png" alt="Profile Cookie">
     </div>
 
     <div class="portal-container">
         <!-- Back Arrow -->
-        <a href="https://astrong.xyz" class="back-link">
+        <a href="https://utility.astrong.xyz" class="back-link">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                 class="lucide lucide-arrow-left">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
-            Back to Home
+            Back to Utilities
         </a>
 
         <header class="portal-header">
             <!-- Named portal-title to prevent script.js H1 query overrides -->
-            <div class="portal-title">Utilities</div>
+            <div class="portal-title">Text Toolkit</div>
         </header>
 
-        <div class="portal-grid">
-            <!-- Time Card - Compact Horizontal Layout -->
-            <a href="time/" class="portal-card time-card">
-                <div class="card-left">
-                    <div class="card-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-clock">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                    </div>
-                    <div class="card-text">
-                        <h2>Time</h2>
-                        <p>Highly synchronized exact time.</p>
-                    </div>
+        <main class="generator-card">
+            <!-- Source Input Container -->
+            <div class="input-section">
+                <div class="control-header">
+                    <span class="control-label">Source Text</span>
+                    <button id="clear-btn" class="text-action-btn" aria-label="Clear source text">Clear</button>
                 </div>
-                <div class="card-action">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-arrow-right">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                </div>
-            </a>
+                <textarea id="input-text" placeholder="Type or paste your text here..." aria-label="Source text input"></textarea>
+            </div>
 
-            <!-- Password Generator Card -->
-            <a href="password/" class="portal-card password-card">
-                <div class="card-left">
-                    <div class="card-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-key-round">
-                            <path
-                                d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" />
-                            <circle cx="16.5" cy="7.5" r=".5" fill="currentColor" />
-                        </svg>
-                    </div>
-                    <div class="card-text">
-                        <h2>Password Generator</h2>
-                        <p>Generate secure, customizable passwords.</p>
-                    </div>
+            <!-- Operations / Actions Grid -->
+            <div class="operations-section">
+                <span class="control-label">Case Transformations</span>
+                <div class="actions-grid">
+                    <button class="action-btn" data-action="camel">camelCase</button>
+                    <button class="action-btn" data-action="snake">snake_case</button>
+                    <button class="action-btn" data-action="pascal">PascalCase</button>
+                    <button class="action-btn" data-action="kebab">kebab-case</button>
+                    <button class="action-btn" data-action="upper">UPPERCASE</button>
+                    <button class="action-btn" data-action="lower">lowercase</button>
+                    <button class="action-btn" data-action="title">Title Case</button>
                 </div>
-                <div class="card-action">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-arrow-right">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                </div>
-            </a>
 
-            <!-- Life Progress Card -->
-            <a href="progress/" class="portal-card progress-card">
-                <div class="card-left">
-                    <div class="card-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-activity">
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                        </svg>
-                    </div>
-                    <div class="card-text">
-                        <h2>Progress</h2>
-                        <p>Day, week, month, and year progress bars.</p>
-                    </div>
+                <span class="control-label" style="margin-top: 1rem;">Encoding & Formatting</span>
+                <div class="actions-grid">
+                    <button class="action-btn" data-action="url-encode">URL Encode</button>
+                    <button class="action-btn" data-action="url-decode">URL Decode</button>
+                    <button class="action-btn" data-action="base64-encode">Base64 Encode</button>
+                    <button class="action-btn" data-action="base64-decode">Base64 Decode</button>
+                    <button class="action-btn" data-action="html-escape">HTML Escape</button>
+                    <button class="action-btn" data-action="html-unescape">HTML Unescape</button>
                 </div>
-                <div class="card-action">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-arrow-right">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                </div>
-            </a>
+            </div>
 
-            <!-- Text Toolkit Card -->
-            <a href="text/" class="portal-card text-card">
-                <div class="card-left">
-                    <div class="card-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-type">
-                            <polyline points="4 7 4 4 20 4 20 7"></polyline>
-                            <line x1="9" y1="20" x2="15" y2="20"></line>
-                            <line x1="12" y1="4" x2="12" y2="20"></line>
-                        </svg>
-                    </div>
-                    <div class="card-text">
-                        <h2>Text Toolkit</h2>
-                        <p>Convert case, URL encode, and format strings.</p>
-                    </div>
+            <!-- Output Container -->
+            <div class="output-section">
+                <div class="control-header">
+                    <span class="control-label">Output Text</span>
+                    <button id="copy-btn" class="text-action-btn" aria-label="Copy output text to clipboard">Copy</button>
                 </div>
-                <div class="card-action">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-arrow-right">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
+                <div class="output-wrapper">
+                    <textarea id="output-text" readonly placeholder="Output will appear here..." aria-label="Output text"></textarea>
                 </div>
-            </a>
+            </div>
 
-
-
-            <!-- SVG Previewer Card -->
-            <a href="svg/" class="portal-card svg-card">
-                <div class="card-left">
-                    <div class="card-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-pen-tool">
-                            <path d="m12 19 7-7 3 3-7 7-3-3Z" />
-                            <path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18Z" />
-                            <path d="m2 2 5 5" />
-                            <circle cx="8" cy="8" r="2" />
-                        </svg>
-                    </div>
-                    <div class="card-text">
-                        <h2>SVG Preview</h2>
-                        <p>Edit colors, clean raw SVG path codes, and more.</p>
-                    </div>
+            <!-- Real-time Statistics Panel -->
+            <div class="stats-panel">
+                <div class="stat-item">
+                    <span class="stat-val" id="stat-chars">0</span>
+                    <span class="stat-lbl">Characters</span>
                 </div>
-                <div class="card-action">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-arrow-right">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
+                <div class="stat-item">
+                    <span class="stat-val" id="stat-words">0</span>
+                    <span class="stat-lbl">Words</span>
                 </div>
-            </a>
-
-
-
-            <!-- Lorem Ipsum Card -->
-            <a href="lorem/" class="portal-card lorem-card">
-                <div class="card-left">
-                    <div class="card-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-text">
-                            <path d="M17 6.1H3" />
-                            <path d="M21 12.1H3" />
-                            <path d="M15.1 18H3" />
-                        </svg>
-                    </div>
-                    <div class="card-text">
-                        <h2>Lorem Ipsum</h2>
-                        <p>Generate customizable placeholder text.</p>
-                    </div>
+                <div class="stat-item">
+                    <span class="stat-val" id="stat-lines">0</span>
+                    <span class="stat-lbl">Lines</span>
                 </div>
-                <div class="card-action">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-arrow-right">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
+                <div class="stat-item">
+                    <span class="stat-val" id="stat-time">&lt; 1m</span>
+                    <span class="stat-lbl">Read Time</span>
                 </div>
-            </a>
-        </div>
+            </div>
+        </main>
     </div>
 
+    <!-- Toast Notification for click-to-copy -->
+    <div id="toast" class="toast-popup" aria-live="polite">Copied to clipboard!</div>
+
     <!-- Scripts: universal console indicator, and script.js for cookie shapes animations -->
-    <script src="universal.js" defer></script>
+    <script src="../../universal.js" defer></script>
+    <script src="../script.js" defer></script>
     <script src="script.js" defer></script>
 </body>
 

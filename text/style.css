@@ -1,0 +1,296 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,slnt,wdth,wght,GRAD,ROND@6..144,-10..0,25..151,1..1000,0..100,0..100&display=swap');
+
+:root {
+    /* Consistent Color variables mapped from palette.css */
+    --background: #121016;
+    --surface: #1d1b20;
+    --surface-variant: #2d2a33;
+    --primary: #8859ff;
+    --primary-container: #4527a0;
+    --on-primary: #ffffff;
+    --on-surface: #e6e1e5;
+    --on-surface-variant: #cac4d0;
+    --outline: #49454f;
+    --highlight-color: #8859ff;
+    --highlight-bg: #f2edff;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    font-family: 'Google Sans Flex', sans-serif;
+    user-select: text;
+    -webkit-user-drag: none;
+}
+
+*::selection {
+    color: var(--highlight-color);
+    background: var(--highlight-bg);
+}
+
+.back-link,
+.pfp-wrapper,
+.portal-title,
+.control-label,
+.text-action-btn,
+.action-btn,
+.stat-lbl,
+.stat-val,
+button {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+body {
+    min-height: 100vh;
+    background: var(--background);
+    color: var(--on-surface);
+    font-family: 'Google Sans Flex', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 15px;
+    gap: 1.5rem;
+}
+
+.pfp-wrapper {
+    width: clamp(80px, 8vw, 100px);
+    height: clamp(80px, 8vw, 100px);
+    clip-path: url('#active-clip');
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.pfp-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.portal-container {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.back-link {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    z-index: 1000;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--on-surface-variant);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.back-link:hover {
+    color: var(--on-surface);
+}
+
+.portal-header {
+    text-align: center;
+}
+
+.portal-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    font-variation-settings: 'ROND' 100, 'wdth' 85;
+    color: var(--on-surface);
+}
+
+/* Material 3 Card Container */
+.generator-card {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 28px;
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.control-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Action text triggers (Clear/Copy) */
+.text-action-btn {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.text-action-btn:hover {
+    color: var(--on-surface);
+}
+
+/* Textarea elements styling */
+textarea {
+    width: 100%;
+    height: 120px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--outline);
+    border-radius: 16px;
+    padding: 1rem;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 500;
+    resize: vertical;
+    line-height: 1.5;
+    transition: border-color 0.2s ease;
+}
+
+textarea:focus {
+    border-color: var(--primary);
+}
+
+#output-text {
+    background: rgba(0, 0, 0, 0.15);
+    color: var(--on-surface-variant);
+}
+
+/* Operations & transformations buttons */
+.operations-section {
+    display: flex;
+    flex-direction: column;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.action-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--outline);
+    color: var(--on-surface);
+    border-radius: 12px;
+    padding: 0.65rem 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--on-surface-variant);
+}
+
+.action-btn:active {
+    background: var(--primary-container);
+    border-color: var(--primary);
+}
+
+/* Stats panel */
+.stats-panel {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--outline);
+    border-radius: 20px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.stat-val {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.stat-lbl {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Toast popup styling */
+.toast-popup {
+    position: fixed;
+    bottom: 2rem;
+    background: var(--surface-variant);
+    border: 1px solid var(--outline);
+    color: var(--on-surface);
+    padding: 0.75rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 1000;
+}
+
+.toast-popup.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .back-link {
+        top: 20px;
+        left: 20px;
+    }
+}
+
+@media (max-width: 580px) {
+    .actions-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 440px) {
+    .actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stats-panel {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}

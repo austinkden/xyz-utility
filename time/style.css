@@ -78,6 +78,10 @@ body {
 }
 
 .back-link {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    z-index: 1000;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -97,6 +101,11 @@ body {
 
 /* Adjust size for mobile/tablet screens */
 @media (max-width: 768px) {
+    .back-link {
+        top: 20px;
+        left: 20px;
+    }
+
     .time-display {
         font-size: 18vw;
     }
