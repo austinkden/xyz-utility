@@ -1,5 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,slnt,wdth,wght,GRAD,ROND@6..144,-10..0,25..151,1..1000,0..100,0..100&display=swap');
 
+:root {
+    /* Consistent Color variables mapped from palette.css */
+    --background: #121016;
+    --surface: #1d1b20;
+    --surface-variant: #2d2a33;
+    --primary: #8859ff;
+    --primary-container: #4527a0;
+    --on-primary: #ffffff;
+    --on-surface: #e6e1e5;
+    --on-surface-variant: #cac4d0;
+    --outline: #49454f;
+    --highlight-color: #8859ff;
+    --highlight-bg: #f2edff;
+    
+    /* Red and Orange accents from palette */
+    --color-red-200: #f5afb5;
+    --color-red-500: #eb3f56;
+    --color-orange-200: #ffd0b3;
+    --color-orange-500: #ff9757;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -12,11 +33,20 @@
 }
 
 *::selection {
-    color: #8859ff;
-    background: #f2edff;
+    color: var(--highlight-color);
+    background: var(--highlight-bg);
 }
 
-.back-link, .pfp-wrapper, .portal-title, .control-label, .control-value, .option-label, .strength-label, .strength-badge, button, input[type="range"] {
+.back-link,
+.pfp-wrapper,
+.portal-title,
+.control-label,
+.control-value,
+.option-label,
+.strength-label,
+.strength-badge,
+button,
+input[type="range"] {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
@@ -24,8 +54,8 @@
 
 body {
     min-height: 100vh;
-    background: #150030;
-    color: #f2edff;
+    background: var(--background);
+    color: var(--on-surface);
     font-family: 'Google Sans Flex', sans-serif;
     display: flex;
     flex-direction: column;
@@ -65,7 +95,7 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: #bfaaff;
+    color: var(--on-surface-variant);
     text-decoration: none;
     font-size: 0.95rem;
     font-weight: 500;
@@ -73,7 +103,7 @@ body {
 }
 
 .back-link:hover {
-    color: #ffffff;
+    color: var(--on-surface);
 }
 
 .portal-header {
@@ -84,27 +114,27 @@ body {
     font-size: 2.25rem;
     font-weight: 800;
     font-variation-settings: 'ROND' 100, 'wdth' 85;
-    color: #f2edff;
+    color: var(--on-surface);
 }
 
+/* Material 3 Expressive Card Container */
 .generator-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 24px;
-    padding: 1.5rem;
-    backdrop-filter: blur(10px);
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 28px; /* M3 Extra Large Rounded Corner */
+    padding: 1.75rem;
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1.5rem;
 }
 
 /* Output Display Container */
 .output-container {
     display: flex;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    padding: 0.5rem;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--outline);
+    border-radius: 16px;
+    padding: 0.5rem 0.75rem;
     align-items: center;
 }
 
@@ -113,7 +143,7 @@ body {
     background: none;
     border: none;
     color: #ffffff;
-    font-size: 1.15rem;
+    font-size: 1.2rem;
     font-weight: 600;
     padding: 0.5rem;
     width: 100%;
@@ -123,35 +153,35 @@ body {
 
 #copy-btn {
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #bfaaff;
-    border-radius: 10px;
-    width: 40px;
-    height: 40px;
+    border: 1px solid var(--outline);
+    color: var(--on-surface-variant);
+    border-radius: 12px;
+    width: 44px;
+    height: 44px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 #copy-btn:hover {
     background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-    border-color: rgba(255, 255, 255, 0.2);
+    color: var(--on-surface);
+    border-color: var(--on-surface-variant);
 }
 
 #copy-btn.copied {
     background: rgba(136, 89, 255, 0.15);
     color: #ffffff;
-    border-color: #8859ff;
+    border-color: var(--primary);
 }
 
-/* Control Group / Slider */
+/* Control Group / Custom Slider */
 .control-group {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
 }
 
 .control-header {
@@ -163,38 +193,69 @@ body {
 .control-label {
     font-size: 0.8rem;
     font-weight: 700;
-    color: #bfaaff;
+    color: var(--on-surface-variant);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
 .control-value {
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--on-surface);
 }
 
+/* Custom Styled Range Slider */
 input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
     width: 100%;
-    height: 6px;
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: 3px;
+    height: 4px; /* Thin slider track */
+    background: linear-gradient(
+        to right, 
+        var(--primary) 0%, 
+        var(--primary) var(--slider-percent, 50%), 
+        var(--surface-variant) var(--slider-percent, 50%), 
+        var(--surface-variant) 100%
+    );
+    border-radius: 2px;
     cursor: pointer;
+    outline: none;
+    transition: background-color 0.1s ease;
 }
 
+/* Webkit browser thumb */
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 18px;
-    height: 18px;
+    appearance: none;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background: #8859ff;
-    border: 2px solid #ffffff;
+    background: var(--primary);
+    border: 2px solid var(--on-surface);
     cursor: pointer;
-    transition: background 0.15s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-    background: #ffffff;
+    background: var(--on-surface);
+    border-color: var(--primary);
+}
+
+/* Firefox browser thumb */
+input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 2px solid var(--on-surface);
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+    background: var(--on-surface);
+    border-color: var(--primary);
 }
 
 /* Options Checkboxes Grid */
@@ -223,33 +284,33 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .option-label {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
+    gap: 0.75rem;
+    font-size: 0.95rem;
     font-weight: 500;
-    color: #dfdbe5;
+    color: var(--on-surface-variant);
     transition: color 0.2s ease;
 }
 
 .option-label::before {
     content: '';
     display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--outline);
+    border-radius: 4px; /* Material 3 Checkbox rounding */
     background: rgba(0, 0, 0, 0.2);
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.option-item input[type="checkbox"]:checked + .option-label {
-    color: #ffffff;
+.option-item input[type="checkbox"]:checked+.option-label {
+    color: var(--on-surface);
 }
 
-.option-item input[type="checkbox"]:checked + .option-label::before {
-    background: #8859ff;
-    border-color: #8859ff;
+.option-item input[type="checkbox"]:checked+.option-label::before {
+    background: var(--primary);
+    border-color: var(--primary);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
-    background-size: 80% 80%;
+    background-size: 75% 75%;
     background-repeat: no-repeat;
     background-position: center;
 }
@@ -259,16 +320,16 @@ input[type="range"]::-webkit-slider-thumb:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 0.75rem 0;
+    border-top: 1px solid var(--outline);
+    border-bottom: 1px solid var(--outline);
+    padding: 0.85rem 0;
     margin-top: 0.25rem;
 }
 
 .strength-label {
     font-size: 0.8rem;
     font-weight: 700;
-    color: #bfaaff;
+    color: var(--on-surface-variant);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -276,65 +337,67 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .strength-badge {
     font-size: 0.75rem;
     font-weight: 700;
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
+    padding: 0.3rem 0.85rem;
+    border-radius: 20px; /* Fully rounded badges */
     text-transform: uppercase;
     letter-spacing: 0.02em;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .strength-weak {
-    background: rgba(255, 89, 89, 0.15);
-    color: #ff5959;
-    border: 1px solid rgba(255, 89, 89, 0.3);
+    background: rgba(235, 63, 86, 0.15);
+    color: var(--color-red-200);
+    border: 1px solid rgba(235, 63, 86, 0.3);
 }
 
 .strength-medium {
-    background: rgba(255, 178, 89, 0.15);
-    color: #ffb259;
-    border: 1px solid rgba(255, 178, 89, 0.3);
+    background: rgba(255, 151, 87, 0.15);
+    color: var(--color-orange-200);
+    border: 1px solid rgba(255, 151, 87, 0.3);
 }
 
 .strength-strong {
     background: rgba(136, 89, 255, 0.15);
-    color: #a380ff;
+    color: var(--highlight-bg);
     border: 1px solid rgba(136, 89, 255, 0.3);
 }
 
-/* Generate Button */
+/* Generate Button - Pill shape */
 .generate-btn {
     width: 100%;
-    background: rgba(136, 89, 255, 0.15);
-    border: 1px solid rgba(136, 89, 255, 0.3);
-    color: #f2edff;
-    border-radius: 14px;
-    padding: 0.85rem;
+    background: var(--primary-container);
+    border: 1px solid var(--primary);
+    color: var(--on-surface);
+    border-radius: 50px; /* Pill shaped M3 filled button */
+    padding: 0.9rem;
     font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
 }
 
 .generate-btn:hover {
-    background: #8859ff;
+    background: var(--primary);
     color: #ffffff;
-    border-color: #8859ff;
+    border-color: var(--primary);
 }
 
 .generate-btn:active {
     transform: scale(0.98);
 }
 
-/* Mobile responsiveness matching portal details */
+/* Mobile responsiveness adjustments */
 @media (max-width: 600px) {
     body {
         gap: 1rem;
     }
+
     .portal-title {
         font-size: 1.8rem;
     }
+
     .generator-card {
-        padding: 1.25rem 1rem;
-        border-radius: 18px;
+        padding: 1.25rem;
+        border-radius: 20px;
     }
 }

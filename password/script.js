@@ -4,12 +4,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const copyBtn = document.getElementById('copy-btn');
     const lengthSlider = document.getElementById('length-slider');
     const lengthVal = document.getElementById('length-val');
-    
+
     const optUppercase = document.getElementById('opt-uppercase');
     const optLowercase = document.getElementById('opt-lowercase');
     const optNumbers = document.getElementById('opt-numbers');
     const optSymbols = document.getElementById('opt-symbols');
-    
+
     const strengthIndicator = document.getElementById('strength-indicator');
     const generateBtn = document.getElementById('generate-btn');
 
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let password = [];
-        
+
         // Fill first places with mandatory elements to guarantee complexity
         for (let i = 0; i < mandatoryChars.length; i++) {
             password.push(mandatoryChars[i]);
@@ -127,18 +127,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update strength indicator badge
     function updateStrength(password) {
         let score = 0;
-        
+
         // Criteria 1: Length contribution
         if (password.length >= 12) score += 2;
         else if (password.length >= 8) score += 1;
-        
+
         // Criteria 2: Complexity (variety of sets)
         let setsCount = 0;
         if (optUppercase.checked) setsCount++;
         if (optLowercase.checked) setsCount++;
         if (optNumbers.checked) setsCount++;
         if (optSymbols.checked) setsCount++;
-        
+
         score += setsCount;
 
         // Determine strength evaluation
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
             copyBtn.setAttribute('aria-label', 'Password copied!');
 
             if (copyTimeout) clearTimeout(copyTimeout);
-            
+
             copyTimeout = setTimeout(() => {
                 copyBtn.classList.remove('copied');
                 copyBtn.innerHTML = copyIconHTML;
@@ -177,9 +177,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Helper: Update slider track color fill dynamically
+    function updateSliderTrack() {
+        const min = lengthSlider.min ? parseFloat(lengthSlider.min) : 8;
+        const max = lengthSlider.max ? parseFloat(lengthSlider.max) : 32;
+        const val = parseFloat(lengthSlider.value);
+        const percent = ((val - min) / (max - min)) * 100;
+        lengthSlider.style.setProperty('--slider-percent', `${percent}%`);
+    }
+
     // Event Listeners
     lengthSlider.addEventListener('input', (e) => {
         lengthVal.textContent = e.target.value;
+        updateSliderTrack();
         generatePassword();
     });
 
@@ -191,5 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
     copyBtn.addEventListener('click', copyToClipboard);
 
     // Initial generate
+    updateSliderTrack();
     generatePassword();
 });

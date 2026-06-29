@@ -1,5 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,slnt,wdth,wght,GRAD,ROND@6..144,-10..0,25..151,1..1000,0..100,0..100&display=swap');
 
+:root {
+    /* Consistent Color variables mapped from palette.css */
+    --background: #121016;
+    --surface: #1d1b20;
+    --surface-variant: #2d2a33;
+    --primary: #8859ff;
+    --primary-container: #4527a0;
+    --on-primary: #ffffff;
+    --on-surface: #e6e1e5;
+    --on-surface-variant: #cac4d0;
+    --outline: #49454f;
+    --highlight-color: #8859ff;
+    --highlight-bg: #f2edff;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -12,8 +27,8 @@
 }
 
 *::selection {
-    color: #8859ff;
-    background: #f2edff;
+    color: var(--highlight-color);
+    background: var(--highlight-bg);
 }
 
 .pfp-wrapper,
@@ -31,8 +46,8 @@
 
 body {
     min-height: 100vh;
-    background: linear-gradient(to bottom right, #8859ff, #1a1d22);
-    color: #f2edff;
+    background: var(--background);
+    color: var(--on-surface);
     font-family: 'Google Sans Flex', sans-serif;
     display: flex;
     flex-direction: column;
@@ -51,9 +66,6 @@ body {
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
 }
 
 .pfp-wrapper img {
@@ -77,7 +89,7 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: #bfaaff;
+    color: var(--on-surface-variant);
     text-decoration: none;
     font-size: 0.95rem;
     font-weight: 500;
@@ -85,7 +97,7 @@ body {
 }
 
 .back-link:hover {
-    color: #f2edff;
+    color: var(--on-surface);
 }
 
 .portal-header {
@@ -96,13 +108,13 @@ body {
     font-size: 3rem;
     font-weight: 800;
     font-variation-settings: 'ROND' 100, 'wdth' 85;
-    color: #f2edff;
+    color: var(--on-surface);
     margin-bottom: 0.5rem;
 }
 
 .portal-header p {
-    font-size: 1rem;
-    color: #bfaaff;
+    font-size: 1.05rem;
+    color: var(--on-surface-variant);
     font-weight: 500;
 }
 
@@ -113,12 +125,13 @@ body {
     width: 100%;
 }
 
+/* Material 3 Expressive Card design */
 .portal-card {
     width: 100%;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 14px;
-    padding: 0.85rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 24px; /* M3 Medium/Large corners */
+    padding: 1.25rem 1.5rem;
     cursor: pointer;
     text-decoration: none;
     color: inherit;
@@ -129,24 +142,32 @@ body {
 }
 
 .portal-card:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--surface-variant);
+    border-color: var(--on-surface-variant);
 }
 
 .card-left {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 1.25rem;
 }
 
 .card-icon {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
+    background: var(--primary-container);
     display: flex;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
-    color: #bfaaff;
+    color: var(--on-surface);
+    transition: background-color 0.2s ease;
+}
+
+.portal-card:hover .card-icon {
+    background: var(--primary);
+    color: #ffffff;
 }
 
 .card-icon img {
@@ -159,44 +180,32 @@ body {
     display: flex;
     flex-direction: column;
     text-align: left;
-    gap: 2px;
+    gap: 4px;
 }
 
 .portal-card h2 {
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     font-weight: 700;
-    color: #f2edff;
+    color: var(--on-surface);
     margin: 0;
 }
 
 .portal-card p {
-    font-size: 0.8rem;
-    color: #bfaaff;
+    font-size: 0.85rem;
+    color: var(--on-surface-variant);
     margin: 0;
-    line-height: 1.3;
+    line-height: 1.4;
 }
 
 .card-action {
     display: flex;
     align-items: center;
-    color: #bfaaff;
+    color: var(--on-surface-variant);
     transition: color 0.2s ease;
 }
 
 .portal-card:hover .card-action {
-    color: #ffffff;
-}
-
-.time-card, .password-card, .progress-card {
-    border-color: rgba(255, 255, 255, 0.1);
-}
-
-.time-card:hover, .password-card:hover, .progress-card:hover {
-    border-color: rgba(255, 255, 255, 0.25);
-}
-
-.time-card:hover .card-icon, .password-card:hover .card-icon, .progress-card:hover .card-icon {
-    color: #ffffff;
+    color: var(--on-surface);
 }
 
 /* Mobile responsive adjustments */
@@ -220,6 +229,7 @@ body {
     }
 
     .portal-card {
-        padding: 0.75rem 1rem;
+        padding: 1rem;
+        border-radius: 20px;
     }
 }

@@ -1,5 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,slnt,wdth,wght,GRAD,ROND@6..144,-10..0,25..151,1..1000,0..100,0..100&display=swap');
 
+:root {
+    /* Consistent Color variables mapped from palette.css */
+    --background: #121016;
+    --surface: #1d1b20;
+    --surface-variant: #2d2a33;
+    --primary: #8859ff;
+    --primary-container: #4527a0;
+    --on-primary: #ffffff;
+    --on-surface: #e6e1e5;
+    --on-surface-variant: #cac4d0;
+    --outline: #49454f;
+    --highlight-color: #8859ff;
+    --highlight-bg: #f2edff;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -11,7 +26,8 @@
 body {
     height: 100vh;
     width: 100vw;
-    background: #150030;
+    background: var(--background);
+    color: var(--on-surface);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -23,12 +39,9 @@ body {
 }
 
 ::selection {
-    color: #8859ff;
-    background: #f2edff;
+    color: var(--highlight-color);
+    background: var(--highlight-bg);
 }
-
-
-
 
 .time-container {
     text-align: center;
@@ -36,41 +49,39 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
 }
 
+/* Material 3 Expressive Display Typography */
 .time-display {
-    font-size: 13vw;
+    font-size: 12vw;
     font-weight: 800;
     font-variation-settings: 'ROND' 100, 'wdth' 85;
-    color: #f2edff;
+    color: var(--on-surface);
     cursor: pointer;
     letter-spacing: -0.02em;
     user-select: none;
+    transition: color 0.2s ease;
 }
 
 .time-display:hover {
-    /* Kept clean and non-scaling */
-}
-
-.time-display:active {
-    /* Kept clean and non-scaling */
+    color: var(--primary);
 }
 
 .date-display {
-    font-size: 3vw;
+    font-size: 2.5vw;
     font-weight: 500;
     font-variation-settings: 'ROND' 100, 'wdth' 75;
-    color: #ffffff;
+    color: var(--on-surface-variant);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.15em;
 }
 
 .back-link {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: #bfaaff;
+    color: var(--on-surface-variant);
     text-decoration: none;
     font-size: 0.95rem;
     font-weight: 500;
@@ -81,7 +92,7 @@ body {
 }
 
 .back-link:hover {
-    color: #f2edff;
+    color: var(--on-surface);
 }
 
 /* Adjust size for mobile/tablet screens */
