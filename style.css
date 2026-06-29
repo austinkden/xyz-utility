@@ -16,7 +16,14 @@
     background: #f2edff;
 }
 
-.pfp-wrapper, .back-link, .portal-title, .portal-header p, .portal-card, .card-action, .portal-card h2, .portal-card p {
+.pfp-wrapper,
+.back-link,
+.portal-title,
+.portal-header p,
+.portal-card,
+.card-action,
+.portal-card h2,
+.portal-card p {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
@@ -32,13 +39,13 @@ body {
     justify-content: center;
     align-items: center;
     padding: 30px;
-    gap: 3vh;
+    gap: 1.5rem;
 }
 
 /* Cookie shapes styling matching homepage exactly */
 .pfp-wrapper {
-    width: 10vw;
-    height: 10vw;
+    width: clamp(80px, 8vw, 100px);
+    height: clamp(80px, 8vw, 100px);
     clip-path: url('#active-clip');
     display: flex;
     justify-content: center;
@@ -59,7 +66,7 @@ body {
 
 .portal-container {
     width: 100%;
-    max-width: 450px;
+    max-width: 850px;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
@@ -100,9 +107,9 @@ body {
 }
 
 .portal-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
     width: 100%;
 }
 
@@ -180,15 +187,15 @@ body {
     color: #ffffff;
 }
 
-.time-card {
+.time-card, .password-card, .progress-card {
     border-color: rgba(255, 255, 255, 0.1);
 }
 
-.time-card:hover {
+.time-card:hover, .password-card:hover, .progress-card:hover {
     border-color: rgba(255, 255, 255, 0.25);
 }
 
-.time-card:hover .card-icon {
+.time-card:hover .card-icon, .password-card:hover .card-icon, .progress-card:hover .card-icon {
     color: #ffffff;
 }
 
@@ -198,11 +205,20 @@ body {
         height: 25vw;
         width: 25vw;
     }
-    
+
+    .portal-container {
+        max-width: 450px;
+    }
+
+    .portal-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
     .portal-title {
         font-size: 2.25rem;
     }
-    
+
     .portal-card {
         padding: 0.75rem 1rem;
     }

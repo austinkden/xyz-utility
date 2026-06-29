@@ -4,16 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Utilities - Austin Strong</title>
-    <link rel="icon" href="../assets/images/pfp-nine-sided-cookie.png" type="image/png">
+    <title>Password Generator - Austin Strong</title>
+    <link rel="icon" href="../../assets/images/pfp-nine-sided-cookie.png" type="image/png">
     <link rel="stylesheet" href="style.css?v=2">
 
     <!-- Discord & Open Graph Meta Tags -->
     <meta name="theme-color" content="#8859ff">
-    <meta property="og:title" content="Austin Strong - Utilities">
-    <meta property="og:description" content="View my active utilities.">
+    <meta property="og:title" content="Austin Strong - Password Generator">
+    <meta property="og:description" content="Generate secure, customizable passwords.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://astrong.xyz/utility/">
+    <meta property="og:url" content="https://astrong.xyz/utility/password/">
     <meta property="og:image" content="https://astrong.xyz/assets/images/pfp-nine-sided-cookie.png">
     <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -52,110 +52,84 @@
 
     <!-- Animated cookie shape at top of page -->
     <div class="pfp-wrapper">
-        <img src="../assets/images/pfp.png" alt="Profile Cookie">
+        <img src="../../assets/images/pfp.png" alt="Profile Cookie">
     </div>
 
     <div class="portal-container">
         <!-- Back Arrow -->
-        <a href="https://astrong.xyz" class="back-link">
+        <a href="https://utility.astrong.xyz" class="back-link">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                 class="lucide lucide-arrow-left">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
-            Back to Home
+            Back to Utilities
         </a>
 
         <header class="portal-header">
             <!-- Named portal-title to prevent script.js H1 query overrides -->
-            <div class="portal-title">Utilities</div>
+            <div class="portal-title">Password Generator</div>
         </header>
 
-        <div class="portal-grid">
-            <!-- Time Card - Compact Horizontal Layout -->
-            <a href="time/" class="portal-card time-card">
-                <div class="card-left">
-                    <div class="card-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-clock">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <polyline points="12 6 12 12 16 14"></polyline>
-                        </svg>
-                    </div>
-                    <div class="card-text">
-                        <h2>Time</h2>
-                        <p>Highly synchronized exact time.</p>
-                    </div>
-                </div>
-                <div class="card-action">
+        <main class="generator-card">
+            <!-- Password Display & Copy Action -->
+            <div class="output-container">
+                <input type="text" id="password-display" readonly placeholder="Click Generate"
+                    aria-label="Generated Password">
+                <button id="copy-btn" aria-label="Copy password to clipboard">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-arrow-right">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-copy">
+                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
                     </svg>
-                </div>
-            </a>
+                </button>
+            </div>
 
-            <!-- Password Generator Card -->
-            <a href="password/" class="portal-card password-card">
-                <div class="card-left">
-                    <div class="card-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-key-round">
-                            <path
-                                d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" />
-                            <circle cx="16.5" cy="7.5" r=".5" fill="currentColor" />
-                        </svg>
-                    </div>
-                    <div class="card-text">
-                        <h2>Password Generator</h2>
-                        <p>Generate secure, customizable passwords.</p>
-                    </div>
+            <!-- Length Slider -->
+            <div class="control-group">
+                <div class="control-header">
+                    <span class="control-label">Length</span>
+                    <span id="length-val" class="control-value">16</span>
                 </div>
-                <div class="card-action">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-arrow-right">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                </div>
-            </a>
+                <input type="range" id="length-slider" min="8" max="32" value="16" aria-label="Password Length">
+            </div>
 
-            <!-- Life Progress Card -->
-            <a href="progress/" class="portal-card progress-card">
-                <div class="card-left">
-                    <div class="card-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-activity">
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                        </svg>
-                    </div>
-                    <div class="card-text">
-                        <h2>Progress</h2>
-                        <p>Day, week, month, and year progress bars.</p>
-                    </div>
-                </div>
-                <div class="card-action">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                        class="lucide lucide-arrow-right">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                    </svg>
-                </div>
-            </a>
-        </div>
+            <!-- Checkbox Controls -->
+            <div class="options-grid">
+                <label class="option-item">
+                    <input type="checkbox" id="opt-uppercase" checked>
+                    <span class="option-label">Uppercase</span>
+                </label>
+                <label class="option-item">
+                    <input type="checkbox" id="opt-lowercase" checked>
+                    <span class="option-label">Lowercase</span>
+                </label>
+                <label class="option-item">
+                    <input type="checkbox" id="opt-numbers" checked>
+                    <span class="option-label">Numbers</span>
+                </label>
+                <label class="option-item">
+                    <input type="checkbox" id="opt-symbols" checked>
+                    <span class="option-label">Symbols</span>
+                </label>
+            </div>
+
+            <!-- Strength Indicator -->
+            <div class="strength-row">
+                <span class="strength-label">Strength</span>
+                <span id="strength-indicator" class="strength-badge strength-strong">Strong</span>
+            </div>
+
+            <button id="generate-btn" class="generate-btn">Generate Password</button>
+        </main>
     </div>
 
     <!-- Scripts: universal console indicator, and script.js for cookie shapes animations -->
     <script src="/universal.js" defer></script>
     <script src="/script.js" defer></script>
+    <script src="script.js" defer></script>
 </body>
 
 </html>
