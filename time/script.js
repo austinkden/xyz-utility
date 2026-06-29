@@ -16,29 +16,53 @@ async function fetchWithTimeout(url, options = {}, timeout = 4000) {
 let clockOffset = 0;
 let is24Hour = localStorage.getItem('time-format-24h') !== 'false';
 
-// Time server configurations for NTP-over-HTTP averaging
-const servers = [
-    {
-        url: 'https://timeapi.io/api/Time/current/zone?timeZone=UTC',
-        parse: (data) => new Date(data.dateTime + 'Z').getTime()
-    },
-    {
-        url: 'https://public-api.siyukatu.com/time.json',
-        parse: (data) => data.time
-    },
-    {
-        url: 'https://timeapi.io/api/Time/current/coordinate?latitude=0&longitude=0',
-        parse: (data) => new Date(data.dateTime + 'Z').getTime()
-    }
-];
-
-// Synchronization logic
+// Time synchronization logic using a tiered approach.
+// 1. Same-Origin Cloudflare Trace (extremely accurate, millisecond precision, zero third-party dependencies)
+// 2. Public NTP-over-HTTP APIs (CORS-enabled fallbacks)
 async function syncTime() {
-    const syncPromises = servers.map(async (server) => {
+    // 1. First, try the same-origin Cloudflare trace endpoint.
+    // In production, this resolves to the Cloudflare edge server serving this page, which is highly accurate.
+    try {
+        const t0 = performance.now();
+        const date0 = Date.now();
+        const response = await fetchWithTimeout('/cdn-cgi/trace', {}, 2500);
+        if (response.ok) {
+            const text = await response.text();
+            const t3 = performance.now();
+            const rtt = t3 - t0;
+            const match = text.match(/ts=(\d+\.?\d*)/);
+            if (match) {
+                const serverTime = parseFloat(match[1]) * 1000;
+                const clientTimeMid = date0 + (rtt / 2);
+                clockOffset = serverTime - clientTimeMid;
+                console.log(`Synced via Same-Origin Cloudflare Trace! Offset: ${clockOffset.toFixed(2)}ms, RTT: ${rtt.toFixed(2)}ms`);
+                return; // Early return since Cloudflare Trace is extremely accurate and authoritative
+            }
+        }
+    } catch (error) {
+        console.warn('Same-Origin Cloudflare Trace sync unavailable (expected in local dev):', error.message);
+    }
+
+    // 2. Fall back to querying public CORS-enabled APIs.
+    // Note: We avoid 'timeapi.io' as its public clock is consistently ~35 seconds slow.
+    const fallbackServers = [
+        {
+            name: 'Siyukatu API',
+            url: 'https://public-api.siyukatu.com/time.json',
+            parse: (data) => data.time
+        },
+        {
+            name: 'WorldTimeAPI',
+            url: 'https://worldtimeapi.org/api/timezone/Etc/UTC',
+            parse: (data) => new Date(data.utc_datetime).getTime()
+        }
+    ];
+
+    const syncPromises = fallbackServers.map(async (server) => {
         try {
             const t0 = performance.now();
             const date0 = Date.now();
-            const response = await fetchWithTimeout(server.url, {}, 3500);
+            const response = await fetchWithTimeout(server.url, {}, 3000);
             if (!response.ok) throw new Error(`HTTP status ${response.status}`);
 
             const data = await response.json();
@@ -48,28 +72,27 @@ async function syncTime() {
             const serverTime = server.parse(data);
             if (isNaN(serverTime)) throw new Error('Invalid time parsed');
 
-            // Offset calculation adjusting for network latency (RTT / 2)
             const clientTimeMid = date0 + (rtt / 2);
             const offset = serverTime - clientTimeMid;
-            return { offset, rtt };
+            return { name: server.name, offset, rtt };
         } catch (error) {
-            console.warn(`Time server sync failed for ${server.url}:`, error.message);
+            console.warn(`Fallback time server sync failed for ${server.name}:`, error.message);
             return null;
         }
     });
 
-    const results = await Promise.all(syncPromises);
-    const validResults = results.filter(res => res !== null);
+    const results = (await Promise.all(syncPromises)).filter(res => res !== null);
 
-    if (validResults.length > 0) {
-        const sumOffset = validResults.reduce((acc, curr) => acc + curr.offset, 0);
-        const avgOffset = sumOffset / validResults.length;
-        const avgRtt = validResults.reduce((acc, curr) => acc + curr.rtt, 0) / validResults.length;
+    if (results.length > 0) {
+        const sumOffset = results.reduce((acc, curr) => acc + curr.offset, 0);
+        const avgOffset = sumOffset / results.length;
+        const avgRtt = results.reduce((acc, curr) => acc + curr.rtt, 0) / results.length;
 
-        console.log(`Synced! Avg offset: ${avgOffset.toFixed(2)}ms. Avg RTT: ${avgRtt.toFixed(2)}ms. Active servers: ${validResults.length}/${servers.length}`);
+        console.log(`Synced via fallback! Avg offset: ${avgOffset.toFixed(2)}ms. Avg RTT: ${avgRtt.toFixed(2)}ms. Active servers: ${results.length}/${fallbackServers.length}`);
         clockOffset = avgOffset;
     } else {
-        console.warn('All time servers failed to sync. Falling back to local clock.');
+        console.warn('All time servers failed to sync. Falling back to local clock (Offset: 0ms).');
+        clockOffset = 0;
     }
 }
 
