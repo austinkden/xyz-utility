@@ -22,8 +22,18 @@
     outline: none;
     -webkit-tap-highlight-color: transparent;
     font-family: 'Google Sans Flex', sans-serif;
-    user-select: text;
     -webkit-user-drag: none;
+}
+
+img {
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+::placeholder {
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 *::selection {
@@ -53,6 +63,8 @@ body {
     align-items: center;
     padding: 30px 15px;
     gap: 1.5rem;
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 .pfp-wrapper {

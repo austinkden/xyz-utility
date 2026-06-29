@@ -43,6 +43,17 @@ body {
     background: var(--highlight-bg);
 }
 
+img {
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+::placeholder {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
 .time-container {
     text-align: center;
     z-index: 1;
