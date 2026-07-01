@@ -41,6 +41,31 @@ img {
     background: var(--highlight-bg);
 }
 
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--outline);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+/* Firefox Support */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--outline) transparent;
+}
+
 .back-link,
 .pfp-wrapper,
 .portal-title,
@@ -62,9 +87,9 @@ body {
     font-family: 'Google Sans Flex', sans-serif;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    padding: 30px 15px;
+    padding: 70px 15px 30px;
     gap: 1.5rem;
     -webkit-user-select: none;
     user-select: none;
@@ -96,7 +121,7 @@ body {
 }
 
 .back-link {
-    position: fixed;
+    position: absolute;
     top: 30px;
     left: 30px;
     z-index: 1000;
@@ -412,6 +437,10 @@ textarea {
 
 /* Responsiveness */
 @media (max-width: 768px) {
+    body {
+        padding-top: 60px;
+    }
+
     .back-link {
         top: 20px;
         left: 20px;

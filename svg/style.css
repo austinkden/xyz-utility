@@ -41,6 +41,31 @@ img {
     background: var(--highlight-bg);
 }
 
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--outline);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+/* Firefox Support */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--outline) transparent;
+}
+
 .back-link,
 .pfp-wrapper,
 .portal-title,
@@ -59,9 +84,9 @@ body {
     font-family: 'Google Sans Flex', sans-serif;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
-    padding: 30px 15px;
+    padding: 70px 15px 30px;
     gap: 1.5rem;
     -webkit-user-select: none;
     user-select: none;
@@ -93,7 +118,7 @@ body {
 }
 
 .back-link {
-    position: fixed;
+    position: absolute;
     top: 30px;
     left: 30px;
     z-index: 1000;
@@ -402,6 +427,13 @@ input[type="range"]::-webkit-slider-thumb:hover {
 @media (max-width: 768px) {
     .svg-editor-grid {
         grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+
+    .editor-card,
+    .preview-card {
+        padding: 1.25rem;
+        border-radius: 24px;
     }
 
     .back-link {
@@ -411,6 +443,23 @@ input[type="range"]::-webkit-slider-thumb:hover {
     }
 
     body {
-        padding-top: 60px;
+        padding-top: 70px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    textarea {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .control-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .actions-section {
+        grid-template-columns: 1fr;
     }
 }
