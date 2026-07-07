@@ -13,7 +13,7 @@
     --outline: #49454f;
     --highlight-color: #8859ff;
     --highlight-bg: #f2edff;
-    
+
     /* Red and Orange accents from palette */
     --color-red-200: #f5afb5;
     --color-red-500: #eb3f56;
@@ -159,7 +159,8 @@ body {
 .generator-card {
     background: var(--surface);
     border: 1px solid var(--outline);
-    border-radius: 28px; /* M3 Extra Large Rounded Corner */
+    border-radius: 28px;
+    /* M3 Extra Large Rounded Corner */
     padding: 1.75rem;
     display: flex;
     flex-direction: column;
@@ -247,14 +248,13 @@ input[type="range"] {
     -webkit-appearance: none;
     appearance: none;
     width: 100%;
-    height: 4px; /* Thin slider track */
-    background: linear-gradient(
-        to right, 
-        var(--primary) 0%, 
-        var(--primary) var(--slider-percent, 50%), 
-        var(--surface-variant) var(--slider-percent, 50%), 
-        var(--surface-variant) 100%
-    );
+    height: 4px;
+    /* Thin slider track */
+    background: linear-gradient(to right,
+            var(--primary) 0%,
+            var(--primary) var(--slider-percent, 50%),
+            var(--surface-variant) var(--slider-percent, 50%),
+            var(--surface-variant) 100%);
     border-radius: 2px;
     cursor: pointer;
     outline: none;
@@ -335,7 +335,8 @@ input[type="range"]::-moz-range-thumb:hover {
     width: 18px;
     height: 18px;
     border: 2px solid var(--outline);
-    border-radius: 4px; /* Material 3 Checkbox rounding */
+    border-radius: 4px;
+    /* Material 3 Checkbox rounding */
     background: rgba(0, 0, 0, 0.2);
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
@@ -376,7 +377,8 @@ input[type="range"]::-moz-range-thumb:hover {
     font-size: 0.75rem;
     font-weight: 700;
     padding: 0.3rem 0.85rem;
-    border-radius: 20px; /* Fully rounded badges */
+    border-radius: 20px;
+    /* Fully rounded badges */
     text-transform: uppercase;
     letter-spacing: 0.02em;
     transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
@@ -406,7 +408,8 @@ input[type="range"]::-moz-range-thumb:hover {
     background: var(--primary-container);
     border: 1px solid var(--primary);
     color: var(--on-surface);
-    border-radius: 50px; /* Pill shaped M3 filled button */
+    border-radius: 50px;
+    /* Pill shaped M3 filled button */
     padding: 0.9rem;
     font-size: 1rem;
     font-weight: 700;
@@ -444,4 +447,6 @@ input[type="range"]::-moz-range-thumb:hover {
         padding: 1.25rem;
         border-radius: 20px;
     }
+}
+}
 }

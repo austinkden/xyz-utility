@@ -329,11 +329,11 @@ input[type="number"] {
     transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
-.check-container:hover input ~ .check-box {
+.check-container:hover input~.check-box {
     background: rgba(255, 255, 255, 0.08);
 }
 
-.check-container input:checked ~ .check-box {
+.check-container input:checked~.check-box {
     background: var(--primary);
     border-color: var(--primary);
 }
@@ -351,7 +351,7 @@ input[type="number"] {
     transform: rotate(45deg);
 }
 
-.check-container input:checked ~ .check-box::after {
+.check-container input:checked~.check-box::after {
     display: block;
 }
 
@@ -445,4 +445,5 @@ textarea {
         top: 20px;
         left: 20px;
     }
+}
 }

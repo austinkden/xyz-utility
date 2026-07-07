@@ -66,14 +66,14 @@ img {
     scrollbar-color: var(--outline) transparent;
 }
 
-.back-link, 
-.pfp-wrapper, 
-.portal-title, 
-.progress-name, 
-.progress-percent, 
-.settings-toggle-btn, 
-.setting-label, 
-.setting-val-text, 
+.back-link,
+.pfp-wrapper,
+.portal-title,
+.progress-name,
+.progress-percent,
+.settings-toggle-btn,
+.setting-label,
+.setting-val-text,
 input[type="range"] {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -201,7 +201,8 @@ body {
     width: 100%;
     height: 8px;
     background: var(--surface-variant);
-    border-radius: 4px; /* Fully rounded pill track */
+    border-radius: 4px;
+    /* Fully rounded pill track */
     overflow: hidden;
 }
 
@@ -228,11 +229,17 @@ body {
         top: 20px;
         left: 20px;
     }
+
     .portal-title {
         font-size: 1.8rem;
     }
+
     .generator-card {
         padding: 1.25rem;
         border-radius: 20px;
     }
+}
+
+border-radius: 20px;
+}
 }
