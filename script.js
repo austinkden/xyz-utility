@@ -7,7 +7,7 @@ const phrases = [
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Handle shape cycling and reversing the rotation of the cookie
     const wrapper = document.querySelector('.pfp-wrapper');
-    const img = document.querySelector('.pfp-wrapper img');
+    const img = document.querySelector('.pfp-wrapper img, .pfp-wrapper .pfp-icon-content');
 
     const shapes = [
         'four-sided-cookie',
@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'sunny'
     ];
 
-    if (wrapper && img) {
+    if (false && wrapper && img) {
         // Pre-sample and align points for all shapes
         const numPoints = 120;
         const shapePoints = {};

@@ -164,6 +164,10 @@ document.addEventListener('DOMContentLoaded', () => {
             copyBtn.classList.add('copied');
             copyBtn.innerHTML = checkIconHTML;
             copyBtn.setAttribute('aria-label', 'Password copied!');
+            
+            if (window.showToast) {
+                window.showToast("Password copied to clipboard!");
+            }
 
             if (copyTimeout) clearTimeout(copyTimeout);
 

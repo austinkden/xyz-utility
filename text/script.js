@@ -153,6 +153,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let toastTimeout = null;
     function showToast(msg) {
+        if (window.showToast) {
+            window.showToast(msg);
+            return;
+        }
         toast.textContent = msg;
         toast.classList.add('show');
         if (toastTimeout) clearTimeout(toastTimeout);

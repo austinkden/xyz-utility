@@ -107,6 +107,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-shrink: 0;
     cursor: pointer;
 }
 
@@ -115,6 +116,22 @@ body {
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
+}
+
+.pfp-icon-content {
+    width: 100%;
+    height: 100%;
+    background: var(--primary-container); /* Theme-responsive icon background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+}
+
+.pfp-icon-content svg {
+    width: 42%;
+    height: 42%;
+    color: #ffffff;
 }
 
 .portal-container {
@@ -419,7 +436,7 @@ input[type="range"]::-moz-range-thumb:hover {
 
 .generate-btn:hover {
     background: var(--primary);
-    color: #ffffff;
+    color: var(--on-primary, #ffffff);
     border-color: var(--primary);
 }
 
