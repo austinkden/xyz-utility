@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loading.style.display = 'block';
 
         let response;
+        let data;
         try {
             const url = `https://aviationweather.gov/api/data/metar?ids=${queryIcao}&format=json`;
             
@@ -52,14 +53,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!response.ok) {
                     throw new Error(`Status ${response.status}`);
                 }
+                data = await response.json();
             } catch (directErr) {
                 console.warn("Direct METAR fetch failed (likely CORS), trying allorigins proxy fallback:", directErr);
                 try {
-                    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
                     response = await fetch(proxyUrl);
                     if (!response.ok) {
                         throw new Error(`AllOrigins status ${response.status}`);
                     }
+                    const wrapper = await response.json();
+                    data = JSON.parse(wrapper.contents);
                 } catch (proxyErr) {
                     console.warn("AllOrigins fallback failed, trying corsproxy.io:", proxyErr);
                     const secondProxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
@@ -67,10 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!response.ok) {
                         throw new Error(`CORS proxy status ${response.status}`);
                     }
+                    data = await response.json();
                 }
             }
-
-            const data = await response.json();
             
             if (!data || data.length === 0) {
                 throw new Error(`No weather observations found for station "${queryIcao}".`);
