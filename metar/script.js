@@ -27,6 +27,134 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    function parseRawMetar(raw) {
+        const report = {
+            raw: raw,
+            rawOb: raw,
+            clouds: []
+        };
+
+        const parts = raw.trim().split(/\s+/);
+        if (parts.length > 0) {
+            report.icaoId = parts[0];
+        }
+
+        const timeMatch = raw.match(/\b\d{2}(\d{2})(\d{2})Z\b/);
+        if (timeMatch) {
+            const date = new Date();
+            date.setUTCHours(Number(timeMatch[1]));
+            date.setUTCMinutes(Number(timeMatch[2]));
+            report.obsTime = date.getTime() / 1000;
+        }
+
+        const windMatch = raw.match(/\b(\d{3}|VRB)(\d{2,3})(G\d{2,3})?KT\b/);
+        if (windMatch) {
+            report.wdir = windMatch[1] === 'VRB' ? 'VRB' : Number(windMatch[1]);
+            report.wspd = Number(windMatch[2]);
+            if (windMatch[3]) {
+                report.wgst = Number(windMatch[3].substring(1));
+            }
+        }
+
+        const tempMatch = raw.match(/\b(M?\d{2})\/(M?\d{2})\b/);
+        if (tempMatch) {
+            const parseTemp = (str) => {
+                const val = Number(str.replace('M', ''));
+                return str.startsWith('M') ? -val : val;
+            };
+            report.temp = parseTemp(tempMatch[1]);
+            report.dewp = parseTemp(tempMatch[2]);
+        }
+
+        const altimMatch = raw.match(/\bA(\d{4})\b/);
+        if (altimMatch) {
+            report.altim = Number(altimMatch[1]) / 100;
+        } else {
+            const qMatch = raw.match(/\bQ(\d{4})\b/);
+            if (qMatch) {
+                report.altim = Number(qMatch[1]);
+            }
+        }
+
+        const visMatch = raw.match(/\b(\d+)(SM)\b/) || raw.match(/\b(\d+\/\d+)(SM)\b/);
+        if (visMatch) {
+            report.visib = visMatch[1];
+        } else if (raw.includes(" 9999 ")) {
+            report.visib = "10+";
+        }
+
+        const cloudRegex = /\b(FEW|SCT|BKN|OVC|VV)(\d{3}|UNKN)\b/g;
+        let match;
+        while ((match = cloudRegex.exec(raw)) !== null) {
+            const cover = match[1];
+            const base = match[2] === 'UNKN' ? null : Number(match[2]) * 100;
+            report.clouds.push({ cover, base });
+        }
+
+        let ceiling = Infinity;
+        for (const cloud of report.clouds) {
+            if (['BKN', 'OVC', 'VV'].includes(cloud.cover) && cloud.base !== null) {
+                if (cloud.base < ceiling) {
+                    ceiling = cloud.base;
+                }
+            }
+        }
+
+        let visNum = 10;
+        if (report.visib) {
+            if (report.visib.includes('/')) {
+                const [num, denom] = report.visib.split('/');
+                visNum = Number(num) / Number(denom);
+            } else {
+                visNum = Number(report.visib.replace('+', ''));
+            }
+        }
+
+        if (ceiling < 500 || visNum < 1) {
+            report.fltcat = 'LIFR';
+        } else if (ceiling < 1000 || visNum < 3) {
+            report.fltcat = 'IFR';
+        } else if (ceiling <= 3000 || visNum <= 5) {
+            report.fltcat = 'MVFR';
+        } else {
+            report.fltcat = 'VFR';
+        }
+
+        return report;
+    }
+
+    function convertNwsToReport(nwsData, queryIcao) {
+        const props = nwsData.properties || {};
+        const raw = props.rawMessage || "";
+        const report = parseRawMetar(raw);
+        
+        if (props.stationId) report.icaoId = props.stationId;
+        if (props.stationName) report.name = props.stationName;
+        
+        if (props.temperature && props.temperature.value !== null) {
+            report.temp = props.temperature.value;
+        }
+        if (props.dewpoint && props.dewpoint.value !== null) {
+            report.dewp = props.dewpoint.value;
+        }
+        if (props.windDirection && props.windDirection.value !== null) {
+            report.wdir = props.windDirection.value;
+        }
+        if (props.windSpeed && props.windSpeed.value !== null) {
+            report.wspd = Math.round(props.windSpeed.value / 1.852);
+        }
+        if (props.windGust && props.windGust.value !== null) {
+            report.wgst = Math.round(props.windGust.value / 1.852);
+        }
+        if (props.visibility && props.visibility.value !== null) {
+            report.visib = String(Math.round(props.visibility.value / 1609.34));
+        }
+        if (props.timestamp) {
+            report.obsTime = new Date(props.timestamp).getTime() / 1000;
+        }
+        return report;
+    }
+
     async function fetchMetar() {
         const icao = icaoInput.value.trim().toUpperCase();
         
@@ -35,51 +163,90 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Standardize 3-letter US codes to 4-letter ICAO (e.g. DEN -> KDEN)
         const queryIcao = (icao.length === 3 && /^[A-Z]{3}$/.test(icao)) ? `K${icao}` : icao;
 
-        // Reset UI
         errorDisplay.style.display = 'none';
         weatherResult.style.display = 'none';
         loading.style.display = 'block';
 
-        let response;
-        let data;
+        let reportData = null;
         try {
-            const url = `https://aviationweather.gov/api/data/metar?ids=${queryIcao}&format=json`;
-            
+            // Stage 1: Direct NWS API (CORS supported natively, ultra fast, US stations)
             try {
-                response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Status ${response.status}`);
+                const nwsUrl = `https://api.weather.gov/stations/${queryIcao}/observations/latest`;
+                const response = await fetch(nwsUrl);
+                if (response.ok) {
+                    const nwsData = await response.json();
+                    reportData = convertNwsToReport(nwsData, queryIcao);
                 }
-                data = await response.json();
-            } catch (directErr) {
-                console.warn("Direct METAR fetch failed (likely CORS), trying allorigins proxy fallback:", directErr);
-                try {
-                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                    response = await fetch(proxyUrl);
-                    if (!response.ok) {
-                        throw new Error(`AllOrigins status ${response.status}`);
-                    }
-                    const wrapper = await response.json();
-                    data = JSON.parse(wrapper.contents);
-                } catch (proxyErr) {
-                    console.warn("AllOrigins fallback failed, trying corsproxy.io:", proxyErr);
-                    const secondProxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-                    response = await fetch(secondProxyUrl);
-                    if (!response.ok) {
-                        throw new Error(`CORS proxy status ${response.status}`);
-                    }
-                    data = await response.json();
-                }
-            }
-            
-            if (!data || data.length === 0) {
-                throw new Error(`No weather observations found for station "${queryIcao}".`);
+            } catch (nwsErr) {
+                console.warn("Direct NWS fetch failed/unsupported:", nwsErr);
             }
 
-            displayWeather(data[0]);
+            // Stage 2: AviationWeather.gov via CORS proxies (global backup)
+            if (!reportData) {
+                const url = `https://aviationweather.gov/api/data/metar?ids=${queryIcao}&format=json`;
+                try {
+                    const directRes = await fetch(url);
+                    if (directRes.ok) {
+                        const data = await directRes.json();
+                        if (data && data.length > 0) {
+                            reportData = data[0];
+                        }
+                    }
+                } catch (directErr) {
+                    console.warn("Direct METAR fetch failed (CORS), trying allorigins proxy:", directErr);
+                    try {
+                        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                        const response = await fetch(proxyUrl);
+                        if (response.ok) {
+                            const wrapper = await response.json();
+                            const data = JSON.parse(wrapper.contents);
+                            if (data && data.length > 0) {
+                                reportData = data[0];
+                            }
+                        }
+                    } catch (proxyErr) {
+                        console.warn("AllOrigins fallback failed, trying corsproxy.io:", proxyErr);
+                        try {
+                            const secondProxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+                            const response = await fetch(secondProxyUrl);
+                            if (response.ok) {
+                                const data = await response.json();
+                                if (data && data.length > 0) {
+                                    reportData = data[0];
+                                }
+                            }
+                        } catch (secProxyErr) {
+                            console.warn("corsproxy.io fallback failed:", secProxyErr);
+                        }
+                    }
+                }
+            }
+
+            // Stage 3: VATSIM METAR API (CORS supported natively, global, raw text fallback)
+            if (!reportData) {
+                console.warn("All proxies failed, falling back to VATSIM raw METAR...");
+                try {
+                    const vatsimUrl = `https://metar.vatsim.net/metar.php?id=${queryIcao}`;
+                    const response = await fetch(vatsimUrl);
+                    if (response.ok) {
+                        const rawText = await response.text();
+                        if (rawText && rawText.trim().length > 0 && !rawText.includes("No METAR")) {
+                            reportData = parseRawMetar(rawText);
+                            reportData.name = "VATSIM Meteorological Station";
+                        }
+                    }
+                } catch (vatsimErr) {
+                    console.error("VATSIM fallback failed:", vatsimErr);
+                }
+            }
+
+            if (!reportData) {
+                throw new Error(`Failed to retrieve weather data for station "${queryIcao}".`);
+            }
+
+            displayWeather(reportData);
         } catch (err) {
             console.error('METAR Fetch Error:', err);
             showError(err.message || "Failed to retrieve weather data. Please try again.");
