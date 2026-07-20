@@ -37,7 +37,7 @@
                 .loading-spinner {
                     width: 58px;
                     height: 58px;
-                    animation: loading-spin 1.2s linear infinite;
+                    animation: loading-spin 1.6s linear infinite;
                     will-change: transform;
                 }
                 @keyframes loading-spin {
