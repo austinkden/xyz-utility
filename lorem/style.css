@@ -279,9 +279,14 @@ body {
     color: var(--on-surface);
 }
 
+:root.light-mode .option:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--on-surface);
+}
+
 .option.active {
     background: var(--primary-container);
-    color: #ffffff;
+    color: var(--on-primary-container, #ffffff);
 }
 
 /* Number Input Controls */

@@ -29,9 +29,17 @@
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
+:root.light-mode .input-row input {
+    background: rgba(0, 0, 0, 0.03);
+}
+
 .input-row input:focus {
     border-color: var(--primary);
     background: rgba(255, 255, 255, 0.08);
+}
+
+:root.light-mode .input-row input:focus {
+    background: rgba(0, 0, 0, 0.05);
 }
 
 .generate-btn {
@@ -65,6 +73,12 @@
     padding: 1rem;
     font-size: 0.95rem;
     font-weight: 500;
+}
+
+:root.light-mode .error-box {
+    background: rgba(211, 28, 52, 0.08);
+    color: #a41628;
+    border-color: #d31c34;
 }
 
 .qr-result {
@@ -124,6 +138,11 @@
 
 .action-btn:hover {
     background: rgba(255, 255, 255, 0.08);
+    border-color: var(--primary);
+}
+
+:root.light-mode .action-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
     border-color: var(--primary);
 }
 

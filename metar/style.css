@@ -56,7 +56,7 @@
 
 .fetch-btn:hover {
     background: var(--primary-container);
-    color: #ffffff;
+    color: var(--on-primary-container, #ffffff);
 }
 
 .fetch-btn:active {
@@ -80,6 +80,12 @@
     font-size: 0.95rem;
     font-weight: 500;
     line-height: 1.4;
+}
+
+:root.light-mode .error-box {
+    background: rgba(211, 28, 52, 0.08);
+    color: #a41628;
+    border-color: #d31c34;
 }
 
 /* Result Presentation */
@@ -140,10 +146,22 @@
     border-color: var(--color-green-500);
 }
 
+:root.light-mode .cat-vfr {
+    background-color: rgba(31, 121, 60, 0.12);
+    color: #1f793c;
+    border-color: #1f793c;
+}
+
 .cat-mvfr {
     background-color: rgba(33, 150, 243, 0.15);
     color: var(--color-blue-300);
     border-color: var(--color-blue-500);
+}
+
+:root.light-mode .cat-mvfr {
+    background-color: rgba(25, 118, 210, 0.12);
+    color: #1976d2;
+    border-color: #1976d2;
 }
 
 .cat-ifr {
@@ -152,10 +170,22 @@
     border-color: var(--color-red-500);
 }
 
+:root.light-mode .cat-ifr {
+    background-color: rgba(164, 22, 40, 0.12);
+    color: #a41628;
+    border-color: #a41628;
+}
+
 .cat-lifr {
     background-color: rgba(206, 147, 216, 0.15);
     color: var(--color-purple-200);
     border-color: var(--color-purple-500);
+}
+
+:root.light-mode .cat-lifr {
+    background-color: rgba(103, 58, 183, 0.12);
+    color: #673ab7;
+    border-color: #673ab7;
 }
 
 .weather-grid {

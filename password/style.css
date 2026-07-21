@@ -412,10 +412,22 @@ input[type="range"]::-moz-range-thumb:hover {
     border: 1px solid rgba(235, 63, 86, 0.3);
 }
 
+:root.light-mode .strength-weak {
+    background: rgba(211, 28, 52, 0.12);
+    color: #a41628;
+    border-color: rgba(211, 28, 52, 0.3);
+}
+
 .strength-medium {
     background: rgba(255, 151, 87, 0.15);
     color: var(--color-orange-200);
     border: 1px solid rgba(255, 151, 87, 0.3);
+}
+
+:root.light-mode .strength-medium {
+    background: rgba(191, 65, 0, 0.12);
+    color: #bf4100;
+    border-color: rgba(191, 65, 0, 0.3);
 }
 
 .strength-strong {
