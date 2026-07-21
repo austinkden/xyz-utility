@@ -134,6 +134,10 @@ body {
     color: #ffffff;
 }
 
+:root.light-mode .pfp-icon-content svg {
+    color: var(--primary);
+}
+
 .portal-container {
     width: 100%;
     max-width: 450px;
@@ -228,8 +232,8 @@ body {
 }
 
 #copy-btn.copied {
-    background: rgba(136, 89, 255, 0.15);
-    color: #ffffff;
+    background: color-mix(in srgb, var(--primary) 15%, transparent);
+    color: var(--primary);
     border-color: var(--primary);
 }
 
@@ -414,9 +418,9 @@ input[type="range"]::-moz-range-thumb:hover {
 }
 
 .strength-strong {
-    background: rgba(136, 89, 255, 0.15);
-    color: var(--highlight-bg);
-    border: 1px solid rgba(136, 89, 255, 0.3);
+    background: color-mix(in srgb, var(--primary) 15%, transparent);
+    color: var(--primary);
+    border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
 }
 
 /* Generate Button - Pill shape */

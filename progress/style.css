@@ -127,6 +127,10 @@ body {
     color: #ffffff;
 }
 
+:root.light-mode .pfp-icon-content svg {
+    color: var(--primary);
+}
+
 .portal-container {
     width: 100%;
     max-width: 450px;
