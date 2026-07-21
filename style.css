@@ -13,6 +13,11 @@
     --outline: #49454f;
     --highlight-color: #8859ff;
     --highlight-bg: #f2edff;
+    --cell-background: rgba(0, 0, 0, 0.15);
+}
+
+:root.light-mode {
+    --cell-background: rgba(0, 0, 0, 0.04);
 }
 
 * {
@@ -125,11 +130,7 @@ body {
 .pfp-icon-content svg {
     width: 42%;
     height: 42%;
-    color: #ffffff;
-}
-
-:root.light-mode .pfp-icon-content svg {
-    color: var(--primary);
+    color: var(--on-primary-container, #ffffff);
 }
 
 .portal-container {
@@ -236,12 +237,8 @@ body {
 
 .portal-card:hover .card-icon {
     background: var(--primary-container);
-    color: #ffffff;
+    color: var(--on-primary-container, #ffffff);
     border-color: var(--primary-container);
-}
-
-:root.light-mode .portal-card:hover .card-icon {
-    color: var(--primary);
 }
 
 .card-icon img {

@@ -50,7 +50,7 @@
 
 .generate-btn:hover {
     background: var(--primary-container);
-    color: #ffffff;
+    color: var(--on-primary-container, #ffffff);
 }
 
 .generate-btn:active {

@@ -124,11 +124,7 @@ body {
 .pfp-icon-content svg {
     width: 42%;
     height: 42%;
-    color: #ffffff;
-}
-
-:root.light-mode .pfp-icon-content svg {
-    color: var(--primary);
+    color: var(--on-primary-container, #ffffff);
 }
 
 .portal-container {

@@ -19,6 +19,11 @@
     --color-red-500: #eb3f56;
     --color-orange-200: #ffd0b3;
     --color-orange-500: #ff9757;
+    --cell-background: rgba(0, 0, 0, 0.15);
+}
+
+:root.light-mode {
+    --cell-background: rgba(0, 0, 0, 0.04);
 }
 
 * {
@@ -131,11 +136,7 @@ body {
 .pfp-icon-content svg {
     width: 42%;
     height: 42%;
-    color: #ffffff;
-}
-
-:root.light-mode .pfp-icon-content svg {
-    color: var(--primary);
+    color: var(--on-primary-container, #ffffff);
 }
 
 .portal-container {
@@ -191,7 +192,7 @@ body {
 /* Output Display Container */
 .output-container {
     display: flex;
-    background: rgba(0, 0, 0, 0.25);
+    background: var(--cell-background);
     border: 1px solid var(--outline);
     border-radius: 16px;
     padding: 0.5rem 0.75rem;
@@ -202,7 +203,7 @@ body {
     flex-grow: 1;
     background: none;
     border: none;
-    color: #ffffff;
+    color: var(--on-surface);
     font-size: 1.2rem;
     font-weight: 600;
     padding: 0.5rem;
@@ -423,12 +424,11 @@ input[type="range"]::-moz-range-thumb:hover {
     border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
 }
 
-/* Generate Button - Pill shape */
 .generate-btn {
     width: 100%;
     background: var(--primary-container);
     border: 1px solid var(--primary);
-    color: var(--on-surface);
+    color: var(--on-primary-container, #ffffff);
     border-radius: 50px;
     /* Pill shaped M3 filled button */
     padding: 0.9rem;
