@@ -81,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let longPressTimer = null;
         let isLongPress = false;
+        let hasReversedThisPress = false;
         let startX = 0;
         let startY = 0;
         let lastCycleTime = 0;
@@ -234,24 +235,35 @@ document.addEventListener('DOMContentLoaded', () => {
         // Desktop Right-Click (contextmenu)
         wrapper.addEventListener('contextmenu', (e) => {
             e.preventDefault();
+            if (!hasReversedThisPress) {
+                hasReversedThisPress = true;
+                reverseRotation();
+            }
         });
 
         // Mobile Long Press & Desktop Right-Click / Long Left-Click using PointerEvents
         wrapper.addEventListener('pointerdown', (e) => {
             if (e.pointerType === 'mouse' && e.button === 2) {
-                reverseRotation();
+                if (!hasReversedThisPress) {
+                    hasReversedThisPress = true;
+                    reverseRotation();
+                }
                 return;
             }
             if (e.pointerType === 'mouse' && e.button !== 0) {
                 return;
             }
             isLongPress = false;
+            hasReversedThisPress = false;
             startX = e.clientX;
             startY = e.clientY;
 
             longPressTimer = setTimeout(() => {
                 isLongPress = true;
-                reverseRotation();
+                if (!hasReversedThisPress) {
+                    hasReversedThisPress = true;
+                    reverseRotation();
+                }
             }, 250);
         });
 
