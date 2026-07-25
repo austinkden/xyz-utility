@@ -63,7 +63,7 @@ img {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.16);
+    background: color-mix(in srgb, var(--on-surface) 16%, transparent);
     border-radius: 4px;
 }
 
@@ -74,7 +74,7 @@ img {
 /* Firefox Support */
 * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+    scrollbar-color: color-mix(in srgb, var(--on-surface) 16%, transparent) transparent;
 }
 
 .back-link,
@@ -359,7 +359,7 @@ input[type="range"]::-moz-range-thumb:hover {
     border: 2px solid var(--outline);
     border-radius: 4px;
     /* Material 3 Checkbox rounding */
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--surface-variant);
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
