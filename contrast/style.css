@@ -181,7 +181,7 @@
     border-radius: 8px;
     color: var(--on-surface);
     padding: 0.6rem 0.85rem;
-    font-family: monospace;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 1rem;
     font-weight: 600;
     text-transform: uppercase;

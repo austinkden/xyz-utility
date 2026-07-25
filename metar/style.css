@@ -259,7 +259,7 @@ body,
 }
 
 .raw-metar-code {
-    font-family: monospace;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 0.95rem;
     color: var(--primary);
     line-height: 1.5;
