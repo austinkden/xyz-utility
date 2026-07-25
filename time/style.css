@@ -46,4 +46,6 @@
     color: var(--on-surface-variant);
     text-transform: uppercase;
     letter-spacing: 0.15em;
+    user-select: none;
+    -webkit-user-select: none;
 }

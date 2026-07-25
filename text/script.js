@@ -213,6 +213,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Ctrl+A / Cmd+A shortcut to select output instead of input
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
+            e.preventDefault();
+            outputText.focus();
+            outputText.select();
+        }
+    }, true);
+
     // Run initial stats setup
     updateStats();
 });

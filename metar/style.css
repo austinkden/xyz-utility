@@ -11,6 +11,28 @@
     gap: 1.5rem;
 }
 
+body,
+.portal-header,
+.portal-title,
+.back-link,
+.fetch-btn,
+.loading-indicator,
+.flight-category-badge,
+.detail-label,
+.raw-metar-label {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.input-row input,
+.res-icao,
+.res-name,
+.detail-value,
+.raw-metar-code {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
 .input-row {
     display: flex;
     gap: 0.75rem;

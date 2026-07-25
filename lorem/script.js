@@ -227,6 +227,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Ctrl+A / Cmd+A shortcut to select output
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'a' || e.key === 'A')) {
+            e.preventDefault();
+            outputText.focus();
+            outputText.select();
+        }
+    });
+
     // Build initial text block on load
     buildLoremText();
 });
