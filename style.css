@@ -283,12 +283,17 @@ body {
 /* Mobile responsive adjustments */
 @media (max-width: 768px) {
     body {
-        padding-top: 60px;
+        padding-top: 1.25rem;
     }
 
     .back-link {
-        top: 20px;
-        left: 20px;
+        position: relative;
+        top: 0;
+        left: 0;
+        align-self: flex-start;
+        width: 100%;
+        max-width: 850px;
+        margin-bottom: 1rem;
     }
 
     .pfp-wrapper {
