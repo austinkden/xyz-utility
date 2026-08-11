@@ -12,9 +12,41 @@ async function fetchWithTimeout(url, options = {}, timeout = 4000) {
     }
 }
 
+// Helper functions for 24h format persistence via root-domain cookies (.astrong.xyz)
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
+function setCookie(name, val) {
+    const hostname = window.location.hostname;
+    const domainStr = hostname.endsWith('astrong.xyz') ? '; domain=.astrong.xyz' : '';
+    document.cookie = `${name}=${val}; path=/${domainStr}; max-age=31536000; SameSite=Lax`;
+}
+
+function getStoredFormat() {
+    const val = getCookie('time-format-24h');
+    if (val !== null) return val !== 'false';
+    if (window.location.hostname === 'astrong.xyz') {
+        try {
+            return localStorage.getItem('time-format-24h') !== 'false';
+        } catch (e) { }
+    }
+    return true;
+}
+
+function saveFormat(val) {
+    setCookie('time-format-24h', val);
+    if (window.location.hostname === 'astrong.xyz') {
+        try { localStorage.setItem('time-format-24h', val); } catch (e) { }
+    }
+}
+
 // Global state
 let clockOffset = 0;
-let is24Hour = localStorage.getItem('time-format-24h') !== 'false';
+let is24Hour = getStoredFormat();
 
 // Time synchronization logic using a tiered approach.
 // 1. Same-Origin Cloudflare Trace (extremely accurate, millisecond precision, zero third-party dependencies)
@@ -134,14 +166,14 @@ function updateClock() {
 // Toggle format
 timeEl.addEventListener('click', () => {
     is24Hour = !is24Hour;
-    localStorage.setItem('time-format-24h', is24Hour);
+    saveFormat(is24Hour);
 });
 
 timeEl.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         is24Hour = !is24Hour;
-        localStorage.setItem('time-format-24h', is24Hour);
+        saveFormat(is24Hour);
     }
 });
 
