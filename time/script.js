@@ -23,7 +23,8 @@ function getCookie(name) {
 function setCookie(name, val) {
     const hostname = window.location.hostname;
     const domainStr = hostname.endsWith('astrong.xyz') ? '; domain=.astrong.xyz' : '';
-    document.cookie = `${name}=${val}; path=/${domainStr}; max-age=31536000; SameSite=Lax`;
+    const secureStr = window.location.protocol === 'https:' ? '; Secure' : '';
+    document.cookie = `${name}=${val}; path=/; max-age=31536000; SameSite=Lax${domainStr}${secureStr}`;
 }
 
 function getStoredFormat() {
