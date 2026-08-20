@@ -101,11 +101,13 @@ body {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    padding: 70px 15px 30px;
-    gap: 1.5rem;
+    padding: 0; margin: 0; margin: 0;
+    
 }
 
 .pfp-wrapper {
+    margin-top: 40px;
+    margin-bottom: -10px;
     width: clamp(80px, 8vw, 100px);
     height: clamp(80px, 8vw, 100px);
     clip-path: url('#active-clip');
@@ -140,6 +142,7 @@ body {
 }
 
 .portal-container {
+    padding: 40px 15px 30px;
     width: 100%;
     max-width: 450px;
     display: flex;
@@ -149,7 +152,7 @@ body {
 
 .back-link {
     position: absolute;
-    top: 30px;
+    top: 75px;
     left: 30px;
     z-index: 1000;
     display: inline-flex;
@@ -463,8 +466,8 @@ input[type="range"]::-moz-range-thumb:hover {
 /* Mobile responsiveness adjustments */
 @media (max-width: 768px) {
     body {
-        padding-top: 1.25rem;
-        gap: 1rem;
+        padding-top: 0;
+        
     }
 
     .back-link {

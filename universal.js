@@ -1083,9 +1083,9 @@
         syncSettingsUI();
 
         // A. Inject SVG Cookie path definitions dynamically if needed
+        injectSvgDefs();
         const wrapper = document.querySelector('.pfp-wrapper');
         if (wrapper) {
-            injectSvgDefs();
             const isRootHome = document.title === 'Austin Strong';
             if (isRootHome) {
                 initCookieWrapper(wrapper);
@@ -1460,12 +1460,15 @@
             menu.className = 'custom-context-menu';
             Object.assign(menu.style, {
                 position: 'fixed',
-                background: 'var(--surface, #1d1b20)',
+                background: 'var(--surface-variant, #2d2a33)',
                 border: '1px solid var(--outline, #49454f)',
-                borderRadius: '12px',
+                borderRadius: '14px',
                 padding: '6px',
                 minWidth: '170px',
                 zIndex: '10000',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
+                backdropFilter: 'blur(12px)',
+                webkitBackdropFilter: 'blur(12px)',
                 display: 'none',
                 flexDirection: 'column',
                 gap: '2px',
@@ -1542,17 +1545,17 @@
                 background: 'transparent',
                 border: 'none',
                 color: 'var(--on-surface, #e6e1e5)',
-                padding: '8px 12px',
+                padding: '7px 12px',
                 borderRadius: '8px',
                 fontSize: '0.85rem',
-                fontWeight: '600',
+                fontWeight: '500',
                 textAlign: 'left',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: '12px',
-                transition: 'background-color 0.15s ease, color 0.15s ease',
+                transition: 'background-color 0.12s ease, color 0.12s ease',
                 userSelect: 'none',
                 webkitUserSelect: 'none'
             });
@@ -1575,7 +1578,6 @@
                 const submenuHeight = submenuInner.offsetHeight || 180;
 
                 const VISIBLE_GAP = 8;
-                const OVERLAP = 2;
 
                 const menuRight = menuRect.width > 0 ? menuRect.right : wrapperRect.right + 6;
                 const menuLeft = menuRect.width > 0 ? menuRect.left : wrapperRect.left - 6;
@@ -1585,38 +1587,25 @@
                     opensRight = false;
                 }
 
-                let left, paddingLeft, paddingRight;
+                let left;
 
                 if (opensRight) {
-                    const startLeft = wrapperRect.right - OVERLAP;
-                    const targetSubmenuLeft = menuRight + VISIBLE_GAP;
-                    left = startLeft;
-                    paddingLeft = Math.max(0, targetSubmenuLeft - startLeft);
-                    paddingRight = 0;
+                    left = menuRight + VISIBLE_GAP;
                 } else {
-                    const targetSubmenuRight = menuLeft - VISIBLE_GAP;
-                    const startRight = wrapperRect.left + OVERLAP;
-                    left = Math.max(8, targetSubmenuRight - submenuWidth);
-                    paddingLeft = 0;
-                    paddingRight = Math.max(0, startRight - (left + submenuWidth));
+                    left = Math.max(8, menuLeft - VISIBLE_GAP - submenuWidth);
                 }
 
                 let top = wrapperRect.top - 6;
                 if (top + submenuHeight > window.innerHeight - 8) {
                     top = window.innerHeight - submenuHeight - 8;
                 }
-                if (top < 8) {
-                    top = 8;
-                }
+                if (top < 8) top = 8;
 
                 Object.assign(submenu.style, {
                     position: 'fixed',
                     left: `${left}px`,
                     top: `${top}px`,
-                    paddingLeft: `${paddingLeft}px`,
-                    paddingRight: `${paddingRight}px`,
-                    paddingTop: '0px',
-                    paddingBottom: '0px'
+                    padding: '0'
                 });
             }
 
@@ -1625,9 +1614,61 @@
                     clearTimeout(leaveTimeout);
                     leaveTimeout = null;
                 }
-                btn.style.backgroundColor = 'var(--surface-variant, #2d2a33)';
-                btn.style.color = 'var(--on-surface, #ffffff)';
+                btn.style.backgroundColor = 'var(--primary, #8859ff)';
+                btn.style.color = '#ffffff';
             };
+
+            // ── mousemove tracker ──────────────────────────────────────────
+            // While a submenu is visible, every mousemove checks if the cursor
+            // is within the combined hit-zone of:
+            //   A) the wrapper row (the menu item that opened the submenu)
+            //   B) the submenu inner panel
+            // The close timer only starts when the cursor is outside BOTH,
+            // and cancels immediately if the cursor returns to either zone.
+            let mouseMoveHandler = null;
+
+            function startMouseTracking() {
+                stopMouseTracking();
+                mouseMoveHandler = (e) => {
+                    if (!submenu || submenu.style.display === 'none') {
+                        stopMouseTracking();
+                        return;
+                    }
+                    const mx = e.clientX, my = e.clientY;
+
+                    // Zone A: the wrapper row
+                    const wr = wrapper.getBoundingClientRect();
+                    const inWrapper = mx >= wr.left && mx <= wr.right && my >= wr.top && my <= wr.bottom;
+
+                    // Zone B: the visible submenu panel
+                    const sr = submenuInner ? submenuInner.getBoundingClientRect() : null;
+                    const inSubmenu = sr && mx >= sr.left && mx <= sr.right && my >= sr.top && my <= sr.bottom;
+
+                    if (inWrapper || inSubmenu) {
+                        // Safe zone — keep alive
+                        keepSubmenuAlive();
+                    } else {
+                        // In the gap or outside — start a close timer (only once)
+                        if (!leaveTimeout) {
+                            leaveTimeout = setTimeout(() => {
+                                btn.style.backgroundColor = 'transparent';
+                                btn.style.color = 'var(--on-surface, #e6e1e5)';
+                                if (submenu) submenu.style.display = 'none';
+                                stopMouseTracking();
+                            }, 300);
+                        }
+                    }
+                };
+                document.addEventListener('mousemove', mouseMoveHandler);
+            }
+
+            function stopMouseTracking() {
+                if (mouseMoveHandler) {
+                    document.removeEventListener('mousemove', mouseMoveHandler);
+                    mouseMoveHandler = null;
+                }
+            }
+            // ──────────────────────────────────────────────────────────────
 
             if (it.children && it.children.length > 0) {
                 const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1658,40 +1699,17 @@
                     webkitUserSelect: 'none'
                 });
 
-                submenu.addEventListener('mouseenter', () => {
-                    const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
-                        ('ontouchstart' in window && window.innerWidth <= 1024);
-                    if (isMobileDevice) return;
-
-                    keepSubmenuAlive();
-                });
-
-                submenu.addEventListener('mouseleave', (e) => {
-                    const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
-                        ('ontouchstart' in window && window.innerWidth <= 1024);
-                    if (isMobileDevice) return;
-
-                    if (e.relatedTarget && (wrapper.contains(e.relatedTarget) || e.relatedTarget === wrapper)) {
-                        return;
-                    }
-
-                    leaveTimeout = setTimeout(() => {
-                        btn.style.backgroundColor = 'transparent';
-                        btn.style.color = 'var(--on-surface, #e6e1e5)';
-                        if (submenu) {
-                            submenu.style.display = 'none';
-                        }
-                    }, 300);
-                });
-
                 submenuInner = document.createElement('div');
                 submenuInner.className = 'custom-context-submenu-inner';
                 Object.assign(submenuInner.style, {
-                    background: 'var(--surface, #1d1b20)',
+                    background: 'var(--surface-variant, #2d2a33)',
                     border: '1px solid var(--outline, #49454f)',
-                    borderRadius: '12px',
+                    borderRadius: '14px',
                     padding: '6px',
                     minWidth: '170px',
+                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
+                    backdropFilter: 'blur(12px)',
+                    webkitBackdropFilter: 'blur(12px)',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '2px'
@@ -1703,12 +1721,12 @@
                 });
 
                 submenu.appendChild(submenuInner);
-                wrapper.appendChild(submenu);
+                document.body.appendChild(submenu);
             }
 
             btn.addEventListener('mouseenter', () => {
-                btn.style.backgroundColor = 'var(--surface-variant, #2d2a33)';
-                btn.style.color = 'var(--on-surface, #ffffff)';
+                btn.style.backgroundColor = 'var(--primary, #8859ff)';
+                btn.style.color = '#ffffff';
             });
 
             btn.addEventListener('mouseleave', () => {
@@ -1719,12 +1737,7 @@
             });
 
             btn.addEventListener('click', (e) => {
-                const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
-                    ('ontouchstart' in window) ||
-                    (navigator.maxTouchPoints > 0 && window.innerWidth <= 1024) ||
-                    (e.pointerType === 'touch');
-
-                if (it.children && it.children.length > 0 && isMobileDevice) {
+                if (it.children && it.children.length > 0) {
                     e.preventDefault();
                     e.stopPropagation();
 
@@ -1737,8 +1750,13 @@
 
                     if (isVisible) {
                         if (submenu) submenu.style.display = 'none';
+                        btn.style.backgroundColor = 'transparent';
+                        btn.style.color = 'var(--on-surface, #e6e1e5)';
+                        stopMouseTracking();
                     } else {
+                        keepSubmenuAlive();
                         positionSubmenu();
+                        startMouseTracking();
                     }
                     return;
                 }
@@ -1747,16 +1765,20 @@
                     it.action(e);
                     menu.style.display = 'none';
                     document.querySelectorAll('.custom-context-submenu').forEach(s => s.style.display = 'none');
+                    stopMouseTracking();
                 }
             });
 
             wrapper.addEventListener('mouseenter', () => {
-                const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
-                    ('ontouchstart' in window && window.innerWidth <= 1024);
-                if (isMobileDevice) return;
-
                 keepSubmenuAlive();
 
+                // Close all OTHER open submenus (body-level) — only when this item has its own submenu
+                if (submenu) {
+                    document.querySelectorAll('.custom-context-submenu').forEach(s => {
+                        if (s !== submenu) s.style.display = 'none';
+                    });
+                }
+                // Reset sibling button styles within the same parent menu
                 const parent = wrapper.parentElement;
                 if (parent) {
                     parent.querySelectorAll(':scope > .menu-item-wrapper').forEach(sibling => {
@@ -1766,33 +1788,14 @@
                                 sibBtn.style.backgroundColor = 'transparent';
                                 sibBtn.style.color = 'var(--on-surface, #e6e1e5)';
                             }
-                            const sibSub = sibling.querySelector('.custom-context-submenu');
-                            if (sibSub) sibSub.style.display = 'none';
                         }
                     });
                 }
 
                 if (submenu) {
                     positionSubmenu();
+                    startMouseTracking();
                 }
-            });
-
-            wrapper.addEventListener('mouseleave', (e) => {
-                const isMobileDevice = window.matchMedia('(max-width: 768px)').matches ||
-                    ('ontouchstart' in window && window.innerWidth <= 1024);
-                if (isMobileDevice) return;
-
-                if (submenu && e.relatedTarget && (submenu.contains(e.relatedTarget) || e.relatedTarget === submenu)) {
-                    return;
-                }
-
-                leaveTimeout = setTimeout(() => {
-                    btn.style.backgroundColor = 'transparent';
-                    btn.style.color = 'var(--on-surface, #e6e1e5)';
-                    if (submenu) {
-                        submenu.style.display = 'none';
-                    }
-                }, 300);
             });
 
             wrapper.appendChild(btn);
@@ -2182,6 +2185,8 @@
             qrcode: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-qr-code"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>`,
             text: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-type"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>`,
             time: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+            terms: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>`,
+            privacy: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
             about: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
             control: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>`,
             theme: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
@@ -2204,6 +2209,8 @@
             { id: 'text', title: 'Text Toolkit', category: 'Utilities', icon: icons.text, url: 'https://utility.astrong.xyz/text/' },
             { id: 'time', title: 'Time', category: 'Utilities', icon: icons.time, url: 'https://utility.astrong.xyz/time/' },
             { id: 'about', title: 'About Austin', category: 'Navigation', icon: icons.about, url: 'https://about.astrong.xyz/' },
+            { id: 'terms', title: 'Terms of Service', category: 'Navigation', icon: icons.terms, url: 'https://astrong.xyz/terms' },
+            { id: 'privacy', title: 'Privacy Policy', category: 'Navigation', icon: icons.privacy, url: 'https://astrong.xyz/privacy' },
             {
                 id: 'theme-toggle', title: 'Toggle Light / Dark Mode', category: 'Actions', icon: icons.theme, action: () => {
                     const isSubHost = window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz');
@@ -2350,9 +2357,565 @@
         });
     }
 
+    function initUniversalHeader() {
+        let existingHeader = document.querySelector('.top-controls-bar');
+        
+        if (!existingHeader) {
+            existingHeader = document.createElement('div');
+            existingHeader.className = 'top-controls-bar';
+            existingHeader.id = 'astrong-universal-header';
+            existingHeader.innerHTML = `
+                <a href="https://astrong.xyz" class="brand-pill" style="color: inherit; text-decoration: none;">
+                    <div class="pfp-wrapper-small">
+                        <img src="/assets/images/pfp-nine-sided-cookie.png" alt="Austin Cookie Profile" class="pfp">
+                    </div>
+                    <span class="brand-name">astrong.xyz</span>
+                </a>
+                <div class="controls-group">
+                    <button id="search-btn" class="control-btn" aria-label="Command Palette" title="Command Palette (Ctrl+K)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <span class="btn-kbd"><kbd>Ctrl</kbd><kbd>K</kbd></span>
+                    </button>
+                    <button id="settings-btn" class="control-btn" aria-label="Settings" title="Settings">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </button>
+                    <button id="help-btn" class="control-btn" aria-label="Help" title="Help & Shortcuts">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </button>
+                </div>
+            `;
+            document.body.prepend(existingHeader);
+        }
+
+        if (!existingHeader.querySelector('.hdr-nav')) {
+            const brandPill = existingHeader.querySelector('.brand-pill');
+            const navContainer = document.createElement('nav');
+            navContainer.className = 'hdr-nav';
+            navContainer.innerHTML = `
+                <div class="hdr-dropdown-wrapper">
+                    <a href="https://schedule.astrong.xyz" class="hdr-nav-btn">
+                        <span>Schedule</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </a>
+                    <div class="hdr-dropdown-menu">
+                        <a href="https://schedule.astrong.xyz/starbucks" class="hdr-dropdown-item">Starbucks Shifts</a>
+                        <a href="https://schedule.astrong.xyz/school/" class="hdr-dropdown-item">School Schedule</a>
+                        <a href="https://calendar.app.google/j4EnNgkWWep23ZZC7" target="_blank" rel="noopener noreferrer" class="hdr-dropdown-item">Find a Time</a>
+                    </div>
+                </div>
+                <div class="hdr-dropdown-wrapper">
+                    <a href="https://utility.astrong.xyz" class="hdr-nav-btn">
+                        <span>Utilities</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </a>
+                    <div class="hdr-dropdown-menu">
+                        <a href="https://utility.astrong.xyz/contrast" class="hdr-dropdown-item">Color Contrast</a>
+                        <a href="https://utility.astrong.xyz/metar" class="hdr-dropdown-item">METAR Weather</a>
+                        <a href="https://utility.astrong.xyz/password" class="hdr-dropdown-item">Password Generator</a>
+                        <a href="https://utility.astrong.xyz/qrcode" class="hdr-dropdown-item">QR Code Generator</a>
+                        <a href="https://utility.astrong.xyz/lorem" class="hdr-dropdown-item">Lorem Ipsum</a>
+                        <a href="https://utility.astrong.xyz/progress" class="hdr-dropdown-item">Progress Tracker</a>
+                        <a href="https://utility.astrong.xyz/text" class="hdr-dropdown-item">Text Tools</a>
+                        <a href="https://utility.astrong.xyz/time" class="hdr-dropdown-item">Time Converter</a>
+                    </div>
+                </div>
+                <div class="hdr-dropdown-wrapper">
+                    <a href="https://about.astrong.xyz" class="hdr-nav-btn">
+                        <span>About</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </a>
+                    <div class="hdr-dropdown-menu">
+                        <a href="https://about.astrong.xyz" class="hdr-dropdown-item">About Austin</a>
+                    </div>
+                </div>
+            `;
+
+            if (brandPill) {
+                brandPill.insertAdjacentElement('afterend', navContainer);
+            } else {
+                existingHeader.prepend(navContainer);
+            }
+
+            // Portal-based dropdown: move each menu to body so CSS :hover can never interfere
+            existingHeader.querySelectorAll('.hdr-dropdown-wrapper').forEach(wrapper => {
+                const menu = wrapper.querySelector('.hdr-dropdown-menu');
+                if (!menu) return;
+
+                // Move menu to body as a portal
+                document.body.appendChild(menu);
+                menu.style.position = 'fixed';
+                menu.style.display = 'none';
+                menu.style.flexDirection = 'column';
+                menu.style.gap = '2px';
+
+                let closeTimer = null;
+                let isOpen = false;
+
+                function positionMenu() {
+                    const triggerRect = wrapper.getBoundingClientRect();
+                    let left = triggerRect.left;
+                    const menuWidth = menu.offsetWidth || 185;
+                    if (left + menuWidth > window.innerWidth - 8) {
+                        left = window.innerWidth - menuWidth - 8;
+                    }
+                    menu.style.left = left + 'px';
+                    menu.style.top = (triggerRect.bottom + 2) + 'px';
+                }
+
+                function openMenu() {
+                    isOpen = true;
+                    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+                    // Close all other portal dropdowns
+                    existingHeader.querySelectorAll('.hdr-dropdown-menu').forEach(m => {
+                        if (m !== menu) { m.style.display = 'none'; }
+                    });
+                    document.querySelectorAll('.hdr-dropdown-menu').forEach(m => {
+                        if (m !== menu) { m.style.display = 'none'; }
+                    });
+                    menu.style.display = 'flex';
+                    positionMenu();
+                }
+
+                function closeMenu(delay) {
+                    if (closeTimer) clearTimeout(closeTimer);
+                    closeTimer = setTimeout(() => {
+                        isOpen = false;
+                        menu.style.display = 'none';
+                    }, delay || 0);
+                }
+
+                wrapper.addEventListener('mouseenter', openMenu);
+                wrapper.addEventListener('mouseleave', () => closeMenu(200));
+                menu.addEventListener('mouseenter', () => {
+                    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+                });
+                menu.addEventListener('mouseleave', () => closeMenu(200));
+
+                window.addEventListener('resize', () => { if (isOpen) positionMenu(); });
+                window.addEventListener('scroll', () => { if (isOpen) positionMenu(); }, true);
+            });
+        }
+
+        // Re-attach header control buttons if dynamically created
+        const searchBtn = existingHeader.querySelector('#search-btn');
+        if (searchBtn && !searchBtn.dataset.bound) {
+            searchBtn.dataset.bound = 'true';
+            searchBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openCommandPalette();
+            });
+        }
+
+        const settingsBtn = existingHeader.querySelector('#settings-btn');
+        if (settingsBtn && !settingsBtn.dataset.bound) {
+            settingsBtn.dataset.bound = 'true';
+            settingsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (typeof window.openSettingsModal === 'function') {
+                    window.openSettingsModal();
+                }
+            });
+        }
+
+        const helpBtn = existingHeader.querySelector('#help-btn');
+        if (helpBtn && !helpBtn.dataset.bound) {
+            helpBtn.dataset.bound = 'true';
+            helpBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (typeof window.openHelpModal === 'function') {
+                    window.openHelpModal();
+                }
+            });
+        }
+    }
+
+    function initUniversalFooter() {
+        if (document.getElementById('astrong-site-footer')) return;
+
+        const footerStyle = document.createElement('style');
+        footerStyle.id = 'astrong-footer-styles';
+        footerStyle.textContent = `
+            .top-controls-bar {
+                position: relative;
+                width: 100%;
+                z-index: 1000;
+                display: grid;
+                grid-template-columns: 1fr auto 1fr;
+                align-items: center;
+                padding: 0.85rem 1.5rem;
+                background: var(--background, #121016);
+                border-bottom: 1px solid var(--outline, rgba(255, 255, 255, 0.08));
+                user-select: none;
+                -webkit-user-select: none;
+                box-sizing: border-box;
+            }
+            :root.light-mode .top-controls-bar {
+                background: #fdfbff;
+                border-bottom-color: rgba(0, 0, 0, 0.08);
+            }
+            .brand-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.55rem;
+                font-size: 0.92rem;
+                font-weight: 700;
+                color: var(--on-surface);
+                letter-spacing: -0.01em;
+                justify-self: flex-start;
+                text-decoration: none;
+            }
+            .controls-group {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                justify-self: flex-end;
+            }
+            .control-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 6px 12px;
+                background: var(--surface-variant, #2d2a33);
+                border: 1px solid var(--outline, #49454f);
+                border-radius: 12px;
+                color: var(--on-surface-variant, #cac4d0);
+                cursor: pointer;
+                font-size: 0.85rem;
+                font-weight: 600;
+                transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+            }
+            .control-btn:hover {
+                background: var(--surface, #1d1b20);
+                border-color: var(--primary, #8859ff);
+                color: var(--primary, #8859ff);
+            }
+            :root.light-mode .control-btn {
+                background: #e7e0ec;
+                border-color: #79747e;
+                color: #49454f;
+            }
+            :root.light-mode .control-btn:hover {
+                background: #fdfbff;
+                border-color: #8859ff;
+                color: #8859ff;
+            }
+            .btn-kbd {
+                display: inline-flex;
+                align-items: center;
+                gap: 2px;
+            }
+            .btn-kbd kbd {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 0.7rem;
+                padding: 2px 4px;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 4px;
+                color: var(--on-surface-variant, #cac4d0);
+            }
+            :root.light-mode .btn-kbd kbd {
+                background: rgba(0, 0, 0, 0.05);
+                border-color: rgba(0, 0, 0, 0.1);
+                color: #49454f;
+            }
+            .hdr-nav {
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+            }
+            .hdr-dropdown-wrapper {
+                position: relative;
+                padding-bottom: 8px;
+                margin-bottom: -8px;
+            }
+            .hdr-nav-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 6px 12px;
+                background: transparent;
+                border: none;
+                border-radius: 10px;
+                color: var(--on-surface-variant, #cac4d0);
+                font-size: 0.88rem;
+                font-weight: 500;
+                cursor: pointer;
+                text-decoration: none;
+                transition: background-color 0.15s ease, color 0.15s ease;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .hdr-nav-btn:hover, .hdr-dropdown-wrapper:hover .hdr-nav-btn {
+                background: rgba(255, 255, 255, 0.08);
+                color: var(--on-surface, #ffffff);
+            }
+            :root.light-mode .hdr-nav-btn:hover, :root.light-mode .hdr-dropdown-wrapper:hover .hdr-nav-btn {
+                background: rgba(0, 0, 0, 0.06);
+                color: #1d1b20;
+            }
+            .hdr-dropdown-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                margin-top: 0;
+                min-width: 185px;
+                background: var(--surface-variant, #2d2a33);
+                border: 1px solid var(--outline, #49454f);
+                border-radius: 14px;
+                padding: 6px;
+                z-index: 2000;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+            .hdr-dropdown-menu::before {
+                content: '';
+                position: absolute;
+                top: -12px;
+                left: 0;
+                right: 0;
+                height: 14px;
+            }
+            /* Dropdown display is fully JS-controlled (portal pattern) — no CSS :hover rule */
+            .hdr-dropdown-item {
+                display: flex;
+                align-items: center;
+                padding: 7px 12px;
+                border-radius: 8px;
+                color: var(--on-surface, #e6e1e5);
+                text-decoration: none;
+                font-size: 0.85rem;
+                font-weight: 500;
+                transition: background-color 0.12s ease, color 0.12s ease;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .hdr-dropdown-item:hover {
+                background: var(--primary, #8859ff);
+                color: #ffffff;
+            }
+            .site-footer {
+                width: 100%;
+                background-color: rgba(18, 16, 22, 0.75);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                border-top: 1px solid var(--outline, rgba(255, 255, 255, 0.08));
+                padding: 2.5rem 1.5rem 1.5rem;
+                margin-top: auto;
+                box-sizing: border-box;
+                font-family: 'Google Sans Flex', 'Google Sans', system-ui, -apple-system, sans-serif;
+                color: var(--on-surface-variant, #cac4d0);
+            }
+            :root.light-mode .site-footer {
+                background-color: rgba(247, 245, 249, 0.75);
+                border-top-color: rgba(0, 0, 0, 0.08);
+                color: #49454f;
+            }
+            .pfp-wrapper-small {
+                width: 28px;
+                height: 28px;
+                clip-path: url('#active-clip');
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-shrink: 0;
+            }
+            .pfp-wrapper-small img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+            .site-footer-inner {
+                max-width: 1000px;
+                margin: 0 auto;
+                display: flex;
+                flex-direction: column;
+                gap: 2rem;
+            }
+            .site-footer-top {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 2rem;
+            }
+            .site-footer-brand {
+                display: flex;
+                flex-direction: column;
+                gap: 0.4rem;
+                max-width: 320px;
+            }
+            .site-footer-brand-title {
+                display: flex;
+                align-items: center;
+                gap: 0.55rem;
+            }
+            .site-footer-logo {
+                font-weight: 700;
+                font-size: 1.15rem;
+                color: var(--on-surface, #e6e1e5);
+                letter-spacing: -0.02em;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            :root.light-mode .site-footer-logo {
+                color: #1d1b20;
+            }
+            .site-footer-tagline {
+                font-size: 0.88rem;
+                opacity: 0.8;
+                line-height: 1.4;
+            }
+            .site-footer-device {
+                font-family: inherit;
+                font-size: 0.75rem;
+                margin-top: 0.4rem;
+                opacity: 0.8;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .site-footer-device .device-id-display {
+                color: inherit;
+                font-weight: normal;
+                cursor: pointer;
+                transition: opacity 0.15s ease;
+            }
+            .site-footer-device .device-id-display:hover {
+                opacity: 1;
+                text-decoration: underline;
+            }
+            .site-footer-nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 2.5rem;
+            }
+            .site-footer-col {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .site-footer-col-title {
+                font-size: 0.8rem;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                color: var(--on-surface, #e6e1e5);
+                opacity: 0.9;
+                margin-bottom: 0.25rem;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            :root.light-mode .site-footer-col-title {
+                color: #1d1b20;
+            }
+            .site-footer-col a {
+                color: var(--on-surface-variant, #cac4d0);
+                text-decoration: none;
+                font-size: 0.88rem;
+                transition: color 0.15s ease;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .site-footer-col a.site-footer-email-highlight {
+                color: var(--primary, #8859ff);
+                font-weight: normal;
+            }
+            .site-footer-col a:hover {
+                color: var(--primary, #8859ff);
+            }
+            .site-footer-bottom {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                gap: 1rem;
+                padding-top: 1.25rem;
+                border-top: 1px solid var(--outline, rgba(255, 255, 255, 0.06));
+                font-size: 0.8rem;
+                opacity: 0.85;
+            }
+            :root.light-mode .site-footer-bottom {
+                border-top-color: rgba(0, 0, 0, 0.06);
+            }
+            .site-footer-copyright {
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .site-footer-github {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.4rem;
+                color: var(--on-surface-variant, #cac4d0);
+                text-decoration: none;
+                transition: color 0.15s ease;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .site-footer-github:hover {
+                color: var(--primary, #8859ff);
+            }
+        `;
+        document.head.appendChild(footerStyle);
+
+        const footer = document.createElement('footer');
+        footer.id = 'astrong-site-footer';
+        footer.className = 'site-footer';
+        footer.innerHTML = `
+            <div class="site-footer-inner">
+                <div class="site-footer-top">
+                    <div class="site-footer-brand">
+                        <div class="site-footer-brand-title">
+                            <a href="https://astrong.xyz" class="brand-pill" style="color: inherit; text-decoration: none; display: flex; align-items: center; gap: 0.55rem;">
+                                <div class="pfp-wrapper-small">
+                                    <img src="/assets/images/pfp-nine-sided-cookie.png" alt="Austin Cookie Profile" class="pfp">
+                                </div>
+                                <span class="site-footer-logo">astrong.xyz</span>
+                            </a>
+                        </div>
+                        <span class="site-footer-device">Device ID: <span class="device-id-display" id="footer-device-id-display" title="Click to copy Device ID">${window.__ASTRONG_DEVICE_ID__ || '--------'}</span></span>
+                    </div>
+                    <div class="site-footer-nav">
+                        <div class="site-footer-col">
+                            <span class="site-footer-col-title">Navigation</span>
+                            <a href="https://astrong.xyz">Home</a>
+                            <a href="https://schedule.astrong.xyz">Schedule</a>
+                            <a href="https://utility.astrong.xyz">Utilities</a>
+                            <a href="https://about.astrong.xyz">About</a>
+                        </div>
+                        <div class="site-footer-col">
+                            <span class="site-footer-col-title">CONTACT & LEGAL</span>
+                            <a href="mailto:austin@astrong.xyz" class="site-footer-email-highlight">austin@astrong.xyz</a>
+                            <a href="https://astrong.xyz/terms">Terms of Service</a>
+                            <a href="https://astrong.xyz/privacy">Privacy Policy</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="site-footer-bottom">
+                    <span class="site-footer-copyright">&copy; 2026 Austin Strong. All rights reserved.</span>
+                    <a href="https://github.com/austinkden/austinkden.github.io" target="_blank" rel="noopener noreferrer" class="site-footer-github" aria-label="View Source on GitHub">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+                            <path d="M9 18c-4.51 2-5-2-7-2" />
+                        </svg>
+                        Source Code
+                    </a>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(footer);
+    }
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initCommandPalette);
+        document.addEventListener('DOMContentLoaded', () => {
+            initCommandPalette();
+            initUniversalHeader();
+            initUniversalFooter();
+        });
     } else {
         initCommandPalette();
+        initUniversalHeader();
+        initUniversalFooter();
     }
 })();
