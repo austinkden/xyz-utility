@@ -647,7 +647,7 @@
     // 0. Universal Loading Screen
     (function () {
         let loader = null;
-        const initialDevId = localStorage.getItem('astrong_device_id') || '';
+        const initialDevId = (!isSubdomain ? (localStorage.getItem('astrong_device_id') || '') : '') || getRootCookie('astrong_device_id') || '';
         const devIdMarkup = `<div class="loading-device-id" id="loading-device-id"><span>${initialDevId}</span></div>`;
 
         // Inject loading screen styles unconditionally for both static & dynamic loaders
@@ -988,17 +988,7 @@
             return; // Ignore shortcuts when typing in inputs
         }
 
-        const key = e.key.toLowerCase();
-
-        if (key === 'h') {
-            window.location.href = 'https://astrong.xyz';
-        } else if (key === 's') {
-            window.location.href = 'https://schedule.astrong.xyz';
-        } else if (key === 'u') {
-            window.location.href = 'https://utility.astrong.xyz';
-        } else if (key === 'a') {
-            window.location.href = 'https://about.astrong.xyz';
-        } else if (e.key === 'Escape') {
+        if (e.key === 'Escape') {
             const backLink = document.querySelector('.back-link');
             if (backLink) {
                 backLink.click();
@@ -1175,15 +1165,6 @@
                 <defs>
                     <clipPath id="nine-sided-cookie" clipPathUnits="objectBoundingBox">
                         <path d="M0.3955 0.0590C0.4007 0.0547 0.4033 0.0526 0.4057 0.0508C0.4615 0.0081 0.5385 0.0081 0.5943 0.0508C0.5967 0.0526 0.5993 0.0547 0.6045 0.0590C0.6068 0.0609 0.6079 0.0619 0.6091 0.0628C0.6354 0.0837 0.6675 0.0955 0.7010 0.0966C0.7024 0.0966 0.7039 0.0966 0.7069 0.0967C0.7136 0.0968 0.7170 0.0968 0.7199 0.0970C0.7898 0.1005 0.8488 0.1506 0.8644 0.2195C0.8651 0.2224 0.8657 0.2257 0.8670 0.2324C0.8675 0.2353 0.8678 0.2368 0.8681 0.2383C0.8749 0.2713 0.8921 0.3013 0.9170 0.3238C0.9181 0.3248 0.9192 0.3258 0.9215 0.3277C0.9265 0.3321 0.9291 0.3343 0.9313 0.3364C0.9825 0.3845 0.9959 0.4612 0.9640 0.5241C0.9627 0.5267 0.9610 0.5297 0.9577 0.5356C0.9563 0.5382 0.9556 0.5396 0.9549 0.5409C0.9391 0.5706 0.9331 0.6047 0.9379 0.6381C0.9381 0.6396 0.9383 0.6411 0.9388 0.6440C0.9399 0.6507 0.9404 0.6541 0.9408 0.6570C0.9495 0.7272 0.9109 0.7946 0.8465 0.8221C0.8438 0.8232 0.8406 0.8244 0.8343 0.8268C0.8315 0.8279 0.8301 0.8284 0.8288 0.8290C0.7978 0.8415 0.7715 0.8638 0.7539 0.8925C0.7531 0.8937 0.7524 0.8950 0.7508 0.8976C0.7474 0.9034 0.7457 0.9063 0.7441 0.9089C0.7061 0.9682 0.6337 0.9948 0.5668 0.9740C0.5640 0.9732 0.5608 0.9720 0.5545 0.9698C0.5517 0.9688 0.5503 0.9683 0.5489 0.9679C0.5171 0.9573 0.4829 0.9573 0.4511 0.9679C0.4497 0.9683 0.4483 0.9688 0.4455 0.9698C0.4392 0.9720 0.4360 0.9732 0.4332 0.9740C0.3663 0.9948 0.2939 0.9682 0.2559 0.9089C0.2543 0.9063 0.2526 0.9034 0.2492 0.8976C0.2476 0.8950 0.2469 0.8937 0.2461 0.8925C0.2285 0.8638 0.2022 0.8415 0.1712 0.8290C0.1699 0.8284 0.1685 0.8279 0.1657 0.8268C0.1594 0.8244 0.1562 0.8232 0.1535 0.8221C0.0891 0.7946 0.0505 0.7272 0.0592 0.6570C0.0596 0.6541 0.0601 0.6507 0.0612 0.6440C0.0617 0.6411 0.0619 0.6396 0.0621 0.6381C0.0669 0.6047 0.0609 0.5706 0.0451 0.5409C0.0444 0.5396 0.0437 0.5382 0.0423 0.5356C0.0390 0.5297 0.0373 0.5267 0.0360 0.5241C0.0041 0.4612 0.0175 0.3845 0.0687 0.3364C0.0709 0.3343 0.0735 0.3321 0.0785 0.3277C0.0808 0.3258 0.0819 0.3248 0.0830 0.3238C0.1079 0.3013 0.1251 0.2713 0.1319 0.2383C0.1322 0.2368 0.1325 0.2353 0.1330 0.2324C0.1343 0.2257 0.1349 0.2224 0.1356 0.2195C0.1512 0.1506 0.2102 0.1005 0.2801 0.0970C0.2830 0.0968 0.2864 0.0968 0.2931 0.0967C0.2961 0.0966 0.2976 0.0966 0.2990 0.0966C0.3325 0.0955 0.3646 0.0837 0.3909 0.0628C0.3921 0.0619 0.3932 0.0609 0.3955 0.0590Z" />
-                    </clipPath>
-                    <clipPath id="four-sided-cookie" clipPathUnits="objectBoundingBox">
-                        <path d="M0.6154 0.1012C0.7947 0.0233 0.9767 0.2053 0.8988 0.3846L0.8859 0.4142C0.8622 0.4689 0.8622 0.5311 0.8859 0.5858L0.8988 0.6154C0.9767 0.7947 0.7947 0.9767 0.6154 0.8988L0.5858 0.8859C0.5311 0.8622 0.4689 0.8622 0.4142 0.8859L0.3846 0.8988C0.2053 0.9767 0.0233 0.7947 0.1012 0.6154L0.1141 0.5858C0.1378 0.5311 0.1378 0.4689 0.1141 0.4142L0.1012 0.3846C0.0233 0.2053 0.2053 0.0233 0.3846 0.1012L0.4142 0.1141C0.4689 0.1378 0.5311 0.1378 0.5858 0.1141L0.6154 0.1012Z" />
-                    </clipPath>
-                    <clipPath id="six-sided-cookie" clipPathUnits="objectBoundingBox">
-                        <path d="M0.3314 0.0909C0.4253 0.0000 0.5747 0.0000 0.6686 0.0909C0.6973 0.1187 0.7325 0.1390 0.7711 0.1499C0.8970 0.1855 0.9717 0.3145 0.9397 0.4410C0.9299 0.4797 0.9299 0.5203 0.9397 0.5590C0.9717 0.6855 0.8970 0.8145 0.7711 0.8501C0.7325 0.8610 0.6973 0.8813 0.6686 0.9091C0.5747 1.0000 0.4253 1.0000 0.3314 0.9091C0.3027 0.8813 0.2675 0.8610 0.2289 0.8501C0.1030 0.8145 0.0283 0.6855 0.0603 0.5590C0.0701 0.5203 0.0701 0.4797 0.0603 0.4410C0.0283 0.3145 0.1030 0.1855 0.2289 0.1499C0.2675 0.1390 0.3027 0.1187 0.3314 0.0909Z" />
-                    </clipPath>
-                    <clipPath id="sunny" clipPathUnits="objectBoundingBox">
-                        <path d="M0.7702 0.1213C0.8013 0.1234 0.8168 0.1245 0.8294 0.1300C0.8476 0.1379 0.8621 0.1524 0.8700 0.1706C0.8755 0.1832 0.8766 0.1987 0.8787 0.2298L0.8835 0.3008C0.8844 0.3134 0.8848 0.3197 0.8862 0.3257C0.8882 0.3344 0.8916 0.3427 0.8963 0.3502C0.8996 0.3554 0.9038 0.3602 0.9121 0.3696L0.9588 0.4232C0.9793 0.4467 0.9896 0.4585 0.9946 0.4713C1.0018 0.4897 1.0018 0.5103 0.9946 0.5287C0.9896 0.5415 0.9793 0.5533 0.9588 0.5768L0.9121 0.6303C0.9038 0.6399 0.8996 0.6446 0.8963 0.6498C0.8916 0.6573 0.8882 0.6656 0.8862 0.6743C0.8848 0.6803 0.8844 0.6866 0.8835 0.6992L0.8787 0.7702C0.8766 0.8013 0.8755 0.8168 0.8700 0.8294C0.8621 0.8476 0.8476 0.8621 0.8294 0.8700C0.8168 0.8755 0.8013 0.8766 0.7702 0.8787L0.6992 0.8835C0.6866 0.8844 0.6803 0.8848 0.6743 0.8862C0.6656 0.8882 0.6573 0.8916 0.6498 0.8963C0.6446 0.8996 0.6399 0.9038 0.6303 0.9121L0.5768 0.9588C0.5533 0.9793 0.5415 0.9896 0.5287 0.9946C0.5103 1.0018 0.4897 1.0018 0.4713 0.9946C0.4585 0.9896 0.4467 0.9793 0.4232 0.9588L0.3696 0.9121C0.3602 0.9038 0.3554 0.8996 0.3502 0.8963C0.3427 0.8916 0.3344 0.8882 0.3257 0.8862C0.3197 0.8848 0.3134 0.8844 0.3008 0.8835L0.2298 0.8787C0.1987 0.8766 0.1832 0.8755 0.1706 0.8700C0.1524 0.8621 0.1379 0.8476 0.1300 0.8294C0.1245 0.8168 0.1234 0.8013 0.1213 0.7702L0.1165 0.6992C0.1156 0.6866 0.1152 0.6803 0.1138 0.6743C0.1118 0.6656 0.1084 0.6573 0.1037 0.6498C0.1004 0.6446 0.0962 0.6399 0.0879 0.6303L0.0412 0.5768C0.0207 0.5533 0.0104 0.5415 0.0054 0.5287C-0.0018 0.5103 -0.0018 0.4897 0.0054 0.4713C0.0104 0.4585 0.0207 0.4467 0.0412 0.4232L0.0879 0.3696C0.0962 0.3602 0.1004 0.3554 0.1037 0.3502C0.1084 0.3427 0.1118 0.3344 0.1138 0.3257C0.1152 0.3197 0.1156 0.3134 0.1165 0.3008L0.1213 0.2298C0.1234 0.1987 0.1245 0.1832 0.1300 0.1706C0.1379 0.1524 0.1524 0.1379 0.1706 0.1300C0.1832 0.1245 0.1987 0.1234 0.2298 0.1213L0.3008 0.1165C0.3134 0.1156 0.3197 0.1152 0.3257 0.1138C0.3344 0.1118 0.3427 0.1084 0.3502 0.1037C0.3554 0.1004 0.3602 0.0962 0.3696 0.0879L0.4232 0.0412C0.4467 0.0207 0.4585 0.0104 0.4713 0.0054C0.4897 -0.0018 0.5103 -0.0018 0.5287 0.0054C0.5415 0.0104 0.5533 0.0207 0.5768 0.0412L0.6303 0.0879C0.6399 0.0962 0.6446 0.1004 0.6498 0.1037C0.6573 0.1084 0.6656 0.1118 0.6743 0.1138C0.6803 0.1152 0.6866 0.1156 0.6992 0.1165L0.7702 0.1213Z" />
                     </clipPath>
                     <clipPath id="four-sided-cookie" clipPathUnits="objectBoundingBox">
                         <path d="M0.6154 0.1012C0.7947 0.0233 0.9767 0.2053 0.8988 0.3846L0.8859 0.4142C0.8622 0.4689 0.8622 0.5311 0.8859 0.5858L0.8988 0.6154C0.9767 0.7947 0.7947 0.9767 0.6154 0.8988L0.5858 0.8859C0.5311 0.8622 0.4689 0.8622 0.4142 0.8859L0.3846 0.8988C0.2053 0.9767 0.0233 0.7947 0.1012 0.6154L0.1141 0.5858C0.1378 0.5311 0.1378 0.4689 0.1141 0.4142L0.1012 0.3846C0.0233 0.2053 0.2053 0.0233 0.3846 0.1012L0.4142 0.1141C0.4689 0.1378 0.5311 0.1378 0.5858 0.1141L0.6154 0.1012Z" />
@@ -2357,187 +2338,16 @@
         });
     }
 
-    function initUniversalHeader() {
-        let existingHeader = document.querySelector('.top-controls-bar');
-        
-        if (!existingHeader) {
-            existingHeader = document.createElement('div');
-            existingHeader.className = 'top-controls-bar';
-            existingHeader.id = 'astrong-universal-header';
-            existingHeader.innerHTML = `
-                <a href="https://astrong.xyz" class="brand-pill" style="color: inherit; text-decoration: none;">
-                    <div class="pfp-wrapper-small">
-                        <img src="/assets/images/pfp-nine-sided-cookie.png" alt="Austin Cookie Profile" class="pfp">
-                    </div>
-                    <span class="brand-name">astrong.xyz</span>
-                </a>
-                <div class="controls-group">
-                    <button id="search-btn" class="control-btn" aria-label="Command Palette" title="Command Palette (Ctrl+K)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                        <span class="btn-kbd"><kbd>Ctrl</kbd><kbd>K</kbd></span>
-                    </button>
-                    <button id="settings-btn" class="control-btn" aria-label="Settings" title="Settings">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    </button>
-                    <button id="help-btn" class="control-btn" aria-label="Help" title="Help & Shortcuts">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                    </button>
-                </div>
-            `;
-            document.body.prepend(existingHeader);
-        }
+    function injectUniversalNavStyles() {
+        if (document.getElementById('astrong-universal-nav-styles')) return;
 
-        if (!existingHeader.querySelector('.hdr-nav')) {
-            const brandPill = existingHeader.querySelector('.brand-pill');
-            const navContainer = document.createElement('nav');
-            navContainer.className = 'hdr-nav';
-            navContainer.innerHTML = `
-                <div class="hdr-dropdown-wrapper">
-                    <a href="https://schedule.astrong.xyz" class="hdr-nav-btn">
-                        <span>Schedule</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                    </a>
-                    <div class="hdr-dropdown-menu">
-                        <a href="https://schedule.astrong.xyz/starbucks" class="hdr-dropdown-item">Starbucks Shifts</a>
-                        <a href="https://schedule.astrong.xyz/school/" class="hdr-dropdown-item">School Schedule</a>
-                        <a href="https://calendar.app.google/j4EnNgkWWep23ZZC7" target="_blank" rel="noopener noreferrer" class="hdr-dropdown-item">Find a Time</a>
-                    </div>
-                </div>
-                <div class="hdr-dropdown-wrapper">
-                    <a href="https://utility.astrong.xyz" class="hdr-nav-btn">
-                        <span>Utilities</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                    </a>
-                    <div class="hdr-dropdown-menu">
-                        <a href="https://utility.astrong.xyz/contrast" class="hdr-dropdown-item">Color Contrast</a>
-                        <a href="https://utility.astrong.xyz/metar" class="hdr-dropdown-item">METAR Weather</a>
-                        <a href="https://utility.astrong.xyz/password" class="hdr-dropdown-item">Password Generator</a>
-                        <a href="https://utility.astrong.xyz/qrcode" class="hdr-dropdown-item">QR Code Generator</a>
-                        <a href="https://utility.astrong.xyz/lorem" class="hdr-dropdown-item">Lorem Ipsum</a>
-                        <a href="https://utility.astrong.xyz/progress" class="hdr-dropdown-item">Progress Tracker</a>
-                        <a href="https://utility.astrong.xyz/text" class="hdr-dropdown-item">Text Tools</a>
-                        <a href="https://utility.astrong.xyz/time" class="hdr-dropdown-item">Time Converter</a>
-                    </div>
-                </div>
-                <div class="hdr-dropdown-wrapper">
-                    <a href="https://about.astrong.xyz" class="hdr-nav-btn">
-                        <span>About</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                    </a>
-                    <div class="hdr-dropdown-menu">
-                        <a href="https://about.astrong.xyz" class="hdr-dropdown-item">About Austin</a>
-                    </div>
-                </div>
-            `;
-
-            if (brandPill) {
-                brandPill.insertAdjacentElement('afterend', navContainer);
-            } else {
-                existingHeader.prepend(navContainer);
-            }
-
-            // Portal-based dropdown: move each menu to body so CSS :hover can never interfere
-            existingHeader.querySelectorAll('.hdr-dropdown-wrapper').forEach(wrapper => {
-                const menu = wrapper.querySelector('.hdr-dropdown-menu');
-                if (!menu) return;
-
-                // Move menu to body as a portal
-                document.body.appendChild(menu);
-                menu.style.position = 'fixed';
-                menu.style.display = 'none';
-                menu.style.flexDirection = 'column';
-                menu.style.gap = '2px';
-
-                let closeTimer = null;
-                let isOpen = false;
-
-                function positionMenu() {
-                    const triggerRect = wrapper.getBoundingClientRect();
-                    let left = triggerRect.left;
-                    const menuWidth = menu.offsetWidth || 185;
-                    if (left + menuWidth > window.innerWidth - 8) {
-                        left = window.innerWidth - menuWidth - 8;
-                    }
-                    menu.style.left = left + 'px';
-                    menu.style.top = (triggerRect.bottom + 2) + 'px';
-                }
-
-                function openMenu() {
-                    isOpen = true;
-                    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
-                    // Close all other portal dropdowns
-                    existingHeader.querySelectorAll('.hdr-dropdown-menu').forEach(m => {
-                        if (m !== menu) { m.style.display = 'none'; }
-                    });
-                    document.querySelectorAll('.hdr-dropdown-menu').forEach(m => {
-                        if (m !== menu) { m.style.display = 'none'; }
-                    });
-                    menu.style.display = 'flex';
-                    positionMenu();
-                }
-
-                function closeMenu(delay) {
-                    if (closeTimer) clearTimeout(closeTimer);
-                    closeTimer = setTimeout(() => {
-                        isOpen = false;
-                        menu.style.display = 'none';
-                    }, delay || 0);
-                }
-
-                wrapper.addEventListener('mouseenter', openMenu);
-                wrapper.addEventListener('mouseleave', () => closeMenu(200));
-                menu.addEventListener('mouseenter', () => {
-                    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
-                });
-                menu.addEventListener('mouseleave', () => closeMenu(200));
-
-                window.addEventListener('resize', () => { if (isOpen) positionMenu(); });
-                window.addEventListener('scroll', () => { if (isOpen) positionMenu(); }, true);
-            });
-        }
-
-        // Re-attach header control buttons if dynamically created
-        const searchBtn = existingHeader.querySelector('#search-btn');
-        if (searchBtn && !searchBtn.dataset.bound) {
-            searchBtn.dataset.bound = 'true';
-            searchBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                openCommandPalette();
-            });
-        }
-
-        const settingsBtn = existingHeader.querySelector('#settings-btn');
-        if (settingsBtn && !settingsBtn.dataset.bound) {
-            settingsBtn.dataset.bound = 'true';
-            settingsBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (typeof window.openSettingsModal === 'function') {
-                    window.openSettingsModal();
-                }
-            });
-        }
-
-        const helpBtn = existingHeader.querySelector('#help-btn');
-        if (helpBtn && !helpBtn.dataset.bound) {
-            helpBtn.dataset.bound = 'true';
-            helpBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                if (typeof window.openHelpModal === 'function') {
-                    window.openHelpModal();
-                }
-            });
-        }
-    }
-
-    function initUniversalFooter() {
-        if (document.getElementById('astrong-site-footer')) return;
-
-        const footerStyle = document.createElement('style');
-        footerStyle.id = 'astrong-footer-styles';
-        footerStyle.textContent = `
+        const navStyle = document.createElement('style');
+        navStyle.id = 'astrong-universal-nav-styles';
+        navStyle.textContent = `
             .top-controls-bar {
                 position: relative;
                 width: 100%;
+                align-self: stretch;
                 z-index: 1000;
                 display: grid;
                 grid-template-columns: 1fr auto 1fr;
@@ -2548,6 +2358,7 @@
                 user-select: none;
                 -webkit-user-select: none;
                 box-sizing: border-box;
+                flex-shrink: 0;
             }
             :root.light-mode .top-controls-bar {
                 background: #fdfbff;
@@ -2563,12 +2374,14 @@
                 letter-spacing: -0.01em;
                 justify-self: flex-start;
                 text-decoration: none;
+                flex-shrink: 0;
             }
             .controls-group {
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
                 justify-self: flex-end;
+                flex-shrink: 0;
             }
             .control-btn {
                 display: inline-flex;
@@ -2583,6 +2396,9 @@
                 font-size: 0.85rem;
                 font-weight: 600;
                 transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+                user-select: none;
+                -webkit-user-select: none;
+                flex-shrink: 0;
             }
             .control-btn:hover {
                 background: var(--surface, #1d1b20);
@@ -2644,6 +2460,7 @@
                 transition: background-color 0.15s ease, color 0.15s ease;
                 user-select: none;
                 -webkit-user-select: none;
+                white-space: nowrap;
             }
             .hdr-nav-btn:hover, .hdr-dropdown-wrapper:hover .hdr-nav-btn {
                 background: rgba(255, 255, 255, 0.08);
@@ -2677,7 +2494,6 @@
                 right: 0;
                 height: 14px;
             }
-            /* Dropdown display is fully JS-controlled (portal pattern) — no CSS :hover rule */
             .hdr-dropdown-item {
                 display: flex;
                 align-items: center;
@@ -2690,10 +2506,224 @@
                 transition: background-color 0.12s ease, color 0.12s ease;
                 user-select: none;
                 -webkit-user-select: none;
+                white-space: nowrap;
             }
             .hdr-dropdown-item:hover {
                 background: var(--primary, #8859ff);
                 color: #ffffff;
+            }
+            .mobile-menu-btn {
+                display: none;
+            }
+            .mobile-drawer-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.6);
+                z-index: 9998;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.2s ease;
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+            }
+            .mobile-drawer {
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: min(340px, 86vw);
+                background: var(--surface, #1d1b20);
+                border-left: 1px solid var(--outline, #49454f);
+                z-index: 9999;
+                transform: translateX(100%);
+                transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                display: flex;
+                flex-direction: column;
+                user-select: none;
+                -webkit-user-select: none;
+                box-sizing: border-box;
+            }
+            :root.light-mode .mobile-drawer {
+                background: #fdfbff;
+                border-left-color: rgba(0, 0, 0, 0.1);
+            }
+            body.mobile-drawer-open {
+                overflow: hidden !important;
+            }
+            body.mobile-drawer-open .mobile-drawer-overlay {
+                display: block;
+                opacity: 1;
+                pointer-events: auto;
+            }
+            body.mobile-drawer-open .mobile-drawer {
+                transform: translateX(0);
+            }
+            .mobile-drawer-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 1rem 1.25rem;
+                border-bottom: 1px solid var(--outline, rgba(255, 255, 255, 0.08));
+            }
+            :root.light-mode .mobile-drawer-header {
+                border-bottom-color: rgba(0, 0, 0, 0.08);
+            }
+            .mobile-drawer-body {
+                flex: 1;
+                overflow-y: auto;
+                padding: 1.25rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1.4rem;
+            }
+            .mobile-drawer-section {
+                display: flex;
+                flex-direction: column;
+                gap: 0.6rem;
+            }
+            .mobile-drawer-section-title {
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.06em;
+                color: var(--on-surface-variant, #cac4d0);
+                opacity: 0.85;
+            }
+            :root.light-mode .mobile-drawer-section-title {
+                color: #49454f;
+            }
+            .mobile-nav-group {
+                display: flex;
+                flex-direction: column;
+                gap: 0.35rem;
+            }
+            .mobile-nav-link {
+                display: flex;
+                align-items: center;
+                gap: 0.65rem;
+                padding: 8px 12px;
+                border-radius: 12px;
+                background: var(--surface-variant, #2d2a33);
+                border: 1px solid var(--outline, #49454f);
+                color: var(--on-surface, #e6e1e5);
+                text-decoration: none;
+                font-size: 0.9rem;
+                font-weight: 600;
+                transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+            }
+            :root.light-mode .mobile-nav-link {
+                background: #e7e0ec;
+                border-color: #79747e;
+                color: #1d1b20;
+            }
+            .mobile-nav-link:hover {
+                border-color: var(--primary, #8859ff);
+                color: var(--primary, #8859ff);
+            }
+            .mobile-nav-sublinks {
+                display: flex;
+                flex-direction: column;
+                gap: 0.25rem;
+                padding-left: 0.5rem;
+            }
+            .mobile-nav-sublink {
+                display: flex;
+                align-items: center;
+                gap: 0.6rem;
+                padding: 7px 12px;
+                border-radius: 8px;
+                color: var(--on-surface-variant, #cac4d0);
+                text-decoration: none;
+                font-size: 0.85rem;
+                font-weight: 500;
+                transition: background-color 0.15s ease, color 0.15s ease;
+            }
+            :root.light-mode .mobile-nav-sublink {
+                color: #49454f;
+            }
+            .mobile-nav-sublink:hover {
+                background: var(--surface-variant, #2d2a33);
+                color: var(--on-surface, #ffffff);
+            }
+            :root.light-mode .mobile-nav-sublink:hover {
+                background: #e7e0ec;
+                color: #1d1b20;
+            }
+            .mobile-chips-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.4rem;
+                margin-top: 0.2rem;
+            }
+            .mobile-chip {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 6px 10px;
+                background: var(--surface-variant, #2d2a33);
+                border: 1px solid var(--outline, #49454f);
+                border-radius: 10px;
+                color: var(--on-surface-variant, #cac4d0);
+                text-decoration: none;
+                font-size: 0.8rem;
+                font-weight: 500;
+                text-align: center;
+                transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+            }
+            :root.light-mode .mobile-chip {
+                background: #e7e0ec;
+                border-color: #79747e;
+                color: #49454f;
+            }
+            .mobile-chip:hover {
+                border-color: var(--primary, #8859ff);
+                color: var(--primary, #8859ff);
+            }
+            .mobile-actions-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0.45rem;
+            }
+            .mobile-action-item {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                padding: 10px 12px;
+                background: var(--surface-variant, #2d2a33);
+                border: 1px solid var(--outline, #49454f);
+                border-radius: 12px;
+                color: var(--on-surface, #e6e1e5);
+                font-size: 0.88rem;
+                font-weight: 600;
+                cursor: pointer;
+                text-align: left;
+                width: 100%;
+                box-sizing: border-box;
+                transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+            }
+            :root.light-mode .mobile-action-item {
+                background: #e7e0ec;
+                border-color: #79747e;
+                color: #1d1b20;
+            }
+            .mobile-action-item:hover {
+                border-color: var(--primary, #8859ff);
+                color: var(--primary, #8859ff);
+            }
+            .pfp-wrapper-small {
+                width: 28px;
+                height: 28px;
+                clip-path: url('#active-clip');
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                flex-shrink: 0;
+            }
+            .pfp-wrapper-small img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
             }
             .site-footer {
                 width: 100%;
@@ -2711,21 +2741,6 @@
                 background-color: rgba(247, 245, 249, 0.75);
                 border-top-color: rgba(0, 0, 0, 0.08);
                 color: #49454f;
-            }
-            .pfp-wrapper-small {
-                width: 28px;
-                height: 28px;
-                clip-path: url('#active-clip');
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                flex-shrink: 0;
-            }
-            .pfp-wrapper-small img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                border-radius: 50%;
             }
             .site-footer-inner {
                 max-width: 1000px;
@@ -2856,8 +2871,447 @@
             .site-footer-github:hover {
                 color: var(--primary, #8859ff);
             }
+            @media (max-width: 768px) {
+                .hdr-nav {
+                    display: none !important;
+                }
+                #settings-btn, #help-btn {
+                    display: none !important;
+                }
+                .mobile-menu-btn {
+                    display: inline-flex !important;
+                }
+                .top-controls-bar {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 0.6rem 0.85rem;
+                    gap: 0.4rem;
+                    width: 100%;
+                    max-width: 100vw;
+                    box-sizing: border-box;
+                }
+                .brand-pill {
+                    gap: 0.4rem;
+                    font-size: 0.85rem;
+                    flex-shrink: 0;
+                }
+                .controls-group {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.4rem;
+                    flex-shrink: 0;
+                }
+                .control-btn {
+                    padding: 6px 9px;
+                    font-size: 0.85rem;
+                    gap: 0;
+                    border-radius: 10px;
+                }
+                .btn-kbd {
+                    display: none !important;
+                }
+            }
+            @media (max-width: 480px) {
+                .top-controls-bar {
+                    padding: 0.5rem 0.65rem;
+                    gap: 0.3rem;
+                }
+                .control-btn {
+                    padding: 5px 8px;
+                }
+            }
         `;
-        document.head.appendChild(footerStyle);
+        (document.head || document.documentElement).appendChild(navStyle);
+    }
+
+    // Inject navigation and header styles immediately
+    injectUniversalNavStyles();
+
+    function initMobileDrawer() {
+        let overlay = document.getElementById('astrong-mobile-drawer-overlay');
+        let drawer = document.getElementById('astrong-mobile-drawer');
+
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'astrong-mobile-drawer-overlay';
+            overlay.className = 'mobile-drawer-overlay';
+            document.body.appendChild(overlay);
+        }
+
+        if (!drawer) {
+            drawer = document.createElement('aside');
+            drawer.id = 'astrong-mobile-drawer';
+            drawer.className = 'mobile-drawer';
+            drawer.setAttribute('aria-label', 'Mobile Navigation Drawer');
+            drawer.innerHTML = `
+                <div class="mobile-drawer-header">
+                    <a href="https://astrong.xyz" class="brand-pill" style="color: inherit; text-decoration: none;">
+                        <div class="pfp-wrapper-small">
+                            <img src="/assets/images/pfp-nine-sided-cookie.png" alt="Austin Cookie Profile" class="pfp">
+                        </div>
+                        <span class="brand-name">astrong.xyz</span>
+                    </a>
+                    <button id="mobile-drawer-close" class="control-btn" aria-label="Close Navigation Menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div class="mobile-drawer-body">
+                    <div class="mobile-drawer-section">
+                        <span class="mobile-drawer-section-title">Schedule</span>
+                        <div class="mobile-nav-group">
+                            <a href="https://schedule.astrong.xyz" class="mobile-nav-link">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                                <span>Schedule Hub</span>
+                            </a>
+                            <div class="mobile-nav-sublinks">
+                                <a href="https://schedule.astrong.xyz/starbucks" class="mobile-nav-sublink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coffee"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h12Z"/><path d="M6 2v2"/><path d="M17 12h1a3 3 0 0 1 0 6h-1"/></svg>
+                                    <span>Starbucks Shifts</span>
+                                </a>
+                                <a href="https://schedule.astrong.xyz/school/" class="mobile-nav-sublink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-graduation-cap"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                                    <span>School Schedule</span>
+                                </a>
+                                <a href="https://calendar.app.google/j4EnNgkWWep23ZZC7" target="_blank" rel="noopener noreferrer" class="mobile-nav-sublink">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M10 16h4"/><path d="M12 14v4"/></svg>
+                                    <span>Find a Time</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mobile-drawer-section">
+                        <span class="mobile-drawer-section-title">Utilities</span>
+                        <div class="mobile-nav-group">
+                            <a href="https://utility.astrong.xyz" class="mobile-nav-link">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                                <span>Utilities Hub</span>
+                            </a>
+                            <div class="mobile-chips-grid">
+                                <a href="https://utility.astrong.xyz/contrast" class="mobile-chip">Contrast</a>
+                                <a href="https://utility.astrong.xyz/metar" class="mobile-chip">METAR</a>
+                                <a href="https://utility.astrong.xyz/password" class="mobile-chip">Password</a>
+                                <a href="https://utility.astrong.xyz/qrcode" class="mobile-chip">QR Code</a>
+                                <a href="https://utility.astrong.xyz/lorem" class="mobile-chip">Lorem</a>
+                                <a href="https://utility.astrong.xyz/progress" class="mobile-chip">Progress</a>
+                                <a href="https://utility.astrong.xyz/text" class="mobile-chip">Text Tools</a>
+                                <a href="https://utility.astrong.xyz/time" class="mobile-chip">Time</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mobile-drawer-section">
+                        <span class="mobile-drawer-section-title">About</span>
+                        <div class="mobile-nav-group">
+                            <a href="https://about.astrong.xyz" class="mobile-nav-link">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                <span>About Austin</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="mobile-drawer-section mobile-drawer-actions">
+                        <span class="mobile-drawer-section-title">Controls</span>
+                        <div class="mobile-actions-list">
+                            <button id="mobile-drawer-settings-btn" class="mobile-action-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                                <span>Settings</span>
+                            </button>
+                            <button id="mobile-drawer-help-btn" class="mobile-action-item">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                                <span>Help & Shortcuts</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(drawer);
+        }
+
+        function openDrawer() {
+            document.body.classList.add('mobile-drawer-open');
+        }
+
+        function closeDrawer() {
+            document.body.classList.remove('mobile-drawer-open');
+        }
+
+        // Connect hamburger button(s)
+        document.querySelectorAll('#mobile-menu-btn, .mobile-menu-btn').forEach(btn => {
+            if (!btn.dataset.drawerBound) {
+                btn.dataset.drawerBound = 'true';
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openDrawer();
+                });
+            }
+        });
+
+        // Close button
+        const closeBtn = drawer.querySelector('#mobile-drawer-close');
+        if (closeBtn && !closeBtn.dataset.bound) {
+            closeBtn.dataset.bound = 'true';
+            closeBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                closeDrawer();
+            });
+        }
+
+        // Overlay click
+        if (overlay && !overlay.dataset.bound) {
+            overlay.dataset.bound = 'true';
+            overlay.addEventListener('click', closeDrawer);
+        }
+
+        // ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.body.classList.contains('mobile-drawer-open')) {
+                closeDrawer();
+            }
+        });
+
+        // Close on navigation link click
+        drawer.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                closeDrawer();
+            });
+        });
+
+        // Settings & Help actions
+        const settingsAction = drawer.querySelector('#mobile-drawer-settings-btn');
+        if (settingsAction && !settingsAction.dataset.bound) {
+            settingsAction.dataset.bound = 'true';
+            settingsAction.addEventListener('click', () => {
+                closeDrawer();
+                if (typeof window.openSettingsModal === 'function') {
+                    window.openSettingsModal();
+                }
+            });
+        }
+
+        const helpAction = drawer.querySelector('#mobile-drawer-help-btn');
+        if (helpAction && !helpAction.dataset.bound) {
+            helpAction.dataset.bound = 'true';
+            helpAction.addEventListener('click', () => {
+                closeDrawer();
+                if (typeof window.openHelpModal === 'function') {
+                    window.openHelpModal();
+                }
+            });
+        }
+    }
+
+    function initUniversalHeader() {
+        injectUniversalNavStyles();
+        let existingHeader = document.querySelector('.top-controls-bar');
+        
+        if (!existingHeader) {
+            existingHeader = document.createElement('div');
+            existingHeader.className = 'top-controls-bar';
+            existingHeader.id = 'astrong-universal-header';
+            existingHeader.innerHTML = `
+                <a href="https://astrong.xyz" class="brand-pill" style="color: inherit; text-decoration: none;">
+                    <div class="pfp-wrapper-small">
+                        <img src="/assets/images/pfp-nine-sided-cookie.png" alt="Austin Cookie Profile" class="pfp">
+                    </div>
+                    <span class="brand-name">astrong.xyz</span>
+                </a>
+                <div class="controls-group">
+                    <button id="search-btn" class="control-btn" aria-label="Command Palette" title="Command Palette (Ctrl+K)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <span class="btn-kbd"><kbd>Ctrl</kbd><kbd>K</kbd></span>
+                    </button>
+                    <button id="settings-btn" class="control-btn" aria-label="Settings" title="Settings">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </button>
+                    <button id="help-btn" class="control-btn" aria-label="Help" title="Help & Shortcuts">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </button>
+                    <button id="mobile-menu-btn" class="control-btn mobile-menu-btn" aria-label="Open Navigation Menu" title="Menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                    </button>
+                </div>
+            `;
+            document.body.prepend(existingHeader);
+        }
+
+        if (!existingHeader.querySelector('#mobile-menu-btn')) {
+            const controlsGroup = existingHeader.querySelector('.controls-group');
+            if (controlsGroup) {
+                const mobBtn = document.createElement('button');
+                mobBtn.id = 'mobile-menu-btn';
+                mobBtn.className = 'control-btn mobile-menu-btn';
+                mobBtn.setAttribute('aria-label', 'Open Navigation Menu');
+                mobBtn.setAttribute('title', 'Menu');
+                mobBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>`;
+                controlsGroup.appendChild(mobBtn);
+            }
+        }
+
+        initMobileDrawer();
+
+        if (!existingHeader.querySelector('.hdr-nav')) {
+            const brandPill = existingHeader.querySelector('.brand-pill');
+            const navContainer = document.createElement('nav');
+            navContainer.className = 'hdr-nav';
+            navContainer.innerHTML = `
+                <div class="hdr-dropdown-wrapper">
+                    <a href="https://schedule.astrong.xyz" class="hdr-nav-btn">
+                        <span>Schedule</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </a>
+                    <div class="hdr-dropdown-menu">
+                        <a href="https://schedule.astrong.xyz/starbucks" class="hdr-dropdown-item">Starbucks Shifts</a>
+                        <a href="https://schedule.astrong.xyz/school/" class="hdr-dropdown-item">School Schedule</a>
+                        <a href="https://calendar.app.google/j4EnNgkWWep23ZZC7" target="_blank" rel="noopener noreferrer" class="hdr-dropdown-item">Find a Time</a>
+                    </div>
+                </div>
+                <div class="hdr-dropdown-wrapper">
+                    <a href="https://utility.astrong.xyz" class="hdr-nav-btn">
+                        <span>Utilities</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </a>
+                    <div class="hdr-dropdown-menu">
+                        <a href="https://utility.astrong.xyz/contrast" class="hdr-dropdown-item">Color Contrast</a>
+                        <a href="https://utility.astrong.xyz/metar" class="hdr-dropdown-item">METAR Weather</a>
+                        <a href="https://utility.astrong.xyz/password" class="hdr-dropdown-item">Password Generator</a>
+                        <a href="https://utility.astrong.xyz/qrcode" class="hdr-dropdown-item">QR Code Generator</a>
+                        <a href="https://utility.astrong.xyz/lorem" class="hdr-dropdown-item">Lorem Ipsum</a>
+                        <a href="https://utility.astrong.xyz/progress" class="hdr-dropdown-item">Progress Tracker</a>
+                        <a href="https://utility.astrong.xyz/text" class="hdr-dropdown-item">Text Tools</a>
+                        <a href="https://utility.astrong.xyz/time" class="hdr-dropdown-item">Time Converter</a>
+                    </div>
+                </div>
+                <div class="hdr-dropdown-wrapper">
+                    <a href="https://about.astrong.xyz" class="hdr-nav-btn">
+                        <span>About</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </a>
+                    <div class="hdr-dropdown-menu">
+                        <a href="https://about.astrong.xyz" class="hdr-dropdown-item">About Austin</a>
+                    </div>
+                </div>
+            `;
+
+            if (brandPill) {
+                brandPill.insertAdjacentElement('afterend', navContainer);
+            } else {
+                existingHeader.prepend(navContainer);
+            }
+
+            // Portal-based dropdown: move each menu to body so CSS :hover can never interfere
+            existingHeader.querySelectorAll('.hdr-dropdown-wrapper').forEach(wrapper => {
+                const menu = wrapper.querySelector('.hdr-dropdown-menu');
+                if (!menu) return;
+
+                // Move menu to body as a portal
+                document.body.appendChild(menu);
+                menu.style.position = 'fixed';
+                menu.style.display = 'none';
+                menu.style.flexDirection = 'column';
+                menu.style.gap = '2px';
+
+                let closeTimer = null;
+                let isOpen = false;
+
+                function positionMenu() {
+                    const triggerRect = wrapper.getBoundingClientRect();
+                    let left = triggerRect.left;
+                    const menuWidth = menu.offsetWidth || 185;
+                    if (left + menuWidth > window.innerWidth - 8) {
+                        left = window.innerWidth - menuWidth - 8;
+                    }
+                    if (left < 8) {
+                        left = 8;
+                    }
+                    menu.style.left = left + 'px';
+                    menu.style.top = (triggerRect.bottom + 2) + 'px';
+                }
+
+                function openMenu() {
+                    isOpen = true;
+                    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+                    // Close all other portal dropdowns
+                    document.querySelectorAll('.hdr-dropdown-menu').forEach(m => {
+                        if (m !== menu) { m.style.display = 'none'; }
+                    });
+                    menu.style.display = 'flex';
+                    positionMenu();
+                }
+
+                function closeMenu(delay) {
+                    if (closeTimer) clearTimeout(closeTimer);
+                    closeTimer = setTimeout(() => {
+                        isOpen = false;
+                        menu.style.display = 'none';
+                    }, delay || 0);
+                }
+
+                wrapper.addEventListener('mouseenter', openMenu);
+                wrapper.addEventListener('mouseleave', () => closeMenu(200));
+                wrapper.addEventListener('click', (e) => {
+                    const isTouch = window.matchMedia('(hover: none)').matches || window.innerWidth <= 768;
+                    if (isTouch) {
+                        if (!isOpen) {
+                            e.preventDefault();
+                            openMenu();
+                        }
+                    }
+                });
+
+                menu.addEventListener('mouseenter', () => {
+                    if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; }
+                });
+                menu.addEventListener('mouseleave', () => closeMenu(200));
+
+                document.addEventListener('click', (e) => {
+                    if (!wrapper.contains(e.target) && !menu.contains(e.target)) {
+                        closeMenu(0);
+                    }
+                });
+
+                window.addEventListener('resize', () => { if (isOpen) positionMenu(); });
+                window.addEventListener('scroll', () => { if (isOpen) positionMenu(); }, true);
+            });
+        }
+
+        // Re-attach header control buttons if dynamically created
+        const searchBtn = existingHeader.querySelector('#search-btn');
+        if (searchBtn && !searchBtn.dataset.bound) {
+            searchBtn.dataset.bound = 'true';
+            searchBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openCommandPalette();
+            });
+        }
+
+        const settingsBtn = existingHeader.querySelector('#settings-btn');
+        if (settingsBtn && !settingsBtn.dataset.bound) {
+            settingsBtn.dataset.bound = 'true';
+            settingsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (typeof window.openSettingsModal === 'function') {
+                    window.openSettingsModal();
+                }
+            });
+        }
+
+        const helpBtn = existingHeader.querySelector('#help-btn');
+        if (helpBtn && !helpBtn.dataset.bound) {
+            helpBtn.dataset.bound = 'true';
+            helpBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (typeof window.openHelpModal === 'function') {
+                    window.openHelpModal();
+                }
+            });
+        }
+    }
+
+    function initUniversalFooter() {
+        injectUniversalNavStyles();
+        if (document.getElementById('astrong-site-footer')) return;
 
         const footer = document.createElement('footer');
         footer.id = 'astrong-site-footer';
