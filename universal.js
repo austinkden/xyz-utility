@@ -1810,9 +1810,9 @@
 
             const scheduleChildren = [
                 ...(isMobile ? [{ label: 'Schedule Portal', action: () => window.location.href = 'https://schedule.astrong.xyz' }] : []),
-                { label: 'Availability Calendar', action: () => window.location.href = 'https://schedule.astrong.xyz/availability' },
+                { label: 'Availability', action: () => window.location.href = 'https://schedule.astrong.xyz/availability' },
                 { label: 'Starbucks Schedule', action: () => window.location.href = 'https://schedule.astrong.xyz/starbucks' },
-                { label: 'School Schedule', action: () => window.location.href = 'https://schedule.astrong.xyz/school/' },
+                { label: 'School Classes', action: () => window.location.href = 'https://schedule.astrong.xyz/school/' },
                 { label: 'Find a Time', action: () => window.open('https://calendar.app.google/j4EnNgkWWep23ZZC7', '_blank') }
             ];
 
@@ -2128,6 +2128,14 @@
                 border-radius: 3px;
                 margin-right: 3px;
             }
+            @media (max-width: 768px) {
+                .cmd-palette-footer {
+                    display: none !important;
+                }
+                .cmd-palette-badge {
+                    display: none !important;
+                }
+            }
         `;
         document.head.appendChild(style);
 
@@ -2181,15 +2189,16 @@
             control: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shield"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>`,
             theme: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`,
             accent: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-palette"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.92 0 1.7-.74 1.7-1.67 0-.42-.16-.82-.44-1.12-.27-.3-.43-.7-.43-1.13 0-.93.75-1.68 1.68-1.68h2.09c3.04 0 5.4-2.46 5.4-5.5 0-4.97-4.48-9-10-9z"/></svg>`,
-            settings: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`
+            settings: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`,
+            help: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-help-circle"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`
         };
 
         const itemsList = [
             { id: 'home', title: 'Home', category: 'Navigation', icon: icons.home, url: 'https://astrong.xyz' },
             { id: 'schedule', title: 'Schedule Portal', category: 'Navigation', icon: icons.schedule, url: 'https://schedule.astrong.xyz' },
-            { id: 'availability', title: 'Availability Calendar', category: 'Schedule', icon: icons.availability, url: 'https://schedule.astrong.xyz/availability/' },
+            { id: 'availability', title: 'Availability', category: 'Schedule', icon: icons.availability, url: 'https://schedule.astrong.xyz/availability/' },
             { id: 'starbucks', title: 'Starbucks Schedule', category: 'Schedule', icon: icons.starbucks, url: 'https://schedule.astrong.xyz/starbucks/' },
-            { id: 'school', title: 'School Schedule', category: 'Schedule', icon: icons.school, url: 'https://schedule.astrong.xyz/school/' },
+            { id: 'school', title: 'School Classes', category: 'Schedule', icon: icons.school, url: 'https://schedule.astrong.xyz/school/' },
             { id: 'utility', title: 'Utility Portal', category: 'Navigation', icon: icons.utility, url: 'https://utility.astrong.xyz' },
             { id: 'contrast', title: 'Color Contrast', category: 'Utilities', icon: icons.contrast, url: 'https://utility.astrong.xyz/contrast/' },
             { id: 'metar', title: 'METAR Aviation Weather', category: 'Utilities', icon: icons.metar, url: 'https://utility.astrong.xyz/metar/' },
@@ -2214,8 +2223,22 @@
             { id: 'accent-cycle', title: 'Cycle Theme', category: 'Actions', icon: icons.accent, action: () => cycleThemeAccent() },
             {
                 id: 'settings', title: 'Open Settings', category: 'Actions', icon: icons.settings, action: () => {
-                    const btn = document.getElementById('settings-btn') || document.getElementById('settings-toggle');
-                    if (btn) btn.click();
+                    if (typeof window.openSettingsModal === 'function') {
+                        window.openSettingsModal();
+                    } else {
+                        const btn = document.getElementById('settings-btn') || document.getElementById('settings-toggle');
+                        if (btn) btn.click();
+                    }
+                }
+            },
+            {
+                id: 'help', title: 'Help & Shortcuts', category: 'Actions', icon: icons.help, action: () => {
+                    if (typeof window.openHelpModal === 'function') {
+                        window.openHelpModal();
+                    } else {
+                        const btn = document.getElementById('help-btn');
+                        if (btn) btn.click();
+                    }
                 }
             }
         ];
@@ -2988,7 +3011,7 @@
                             <div class="mobile-nav-sublinks">
                                 <a href="https://schedule.astrong.xyz/availability" class="mobile-nav-sublink">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
-                                    <span>Availability Calendar</span>
+                                    <span>Availability</span>
                                 </a>
                                 <a href="https://schedule.astrong.xyz/starbucks" class="mobile-nav-sublink">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-coffee"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h12Z"/><path d="M6 2v2"/><path d="M17 12h1a3 3 0 0 1 0 6h-1"/></svg>
@@ -2996,7 +3019,7 @@
                                 </a>
                                 <a href="https://schedule.astrong.xyz/school/" class="mobile-nav-sublink">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-graduation-cap"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-                                    <span>School Schedule</span>
+                                    <span>School Classes</span>
                                 </a>
                                 <a href="https://calendar.app.google/j4EnNgkWWep23ZZC7" target="_blank" rel="noopener noreferrer" class="mobile-nav-sublink">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M10 16h4"/><path d="M12 14v4"/></svg>
@@ -3028,7 +3051,7 @@
                                 </a>
                                 <a href="https://utility.astrong.xyz/qrcode" class="mobile-nav-sublink">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-qr-code"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
-                                    <span>QR Code Generator</span>
+                                    <span>QR Code</span>
                                 </a>
                                 <a href="https://utility.astrong.xyz/lorem" class="mobile-nav-sublink">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-text"><path d="M17 6.1H3"/><path d="M21 12.1H3"/><path d="M15.1 18H3"/></svg>
@@ -3040,11 +3063,11 @@
                                 </a>
                                 <a href="https://utility.astrong.xyz/text" class="mobile-nav-sublink">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-type"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
-                                    <span>Text Tools</span>
+                                    <span>Text Toolkit</span>
                                 </a>
                                 <a href="https://utility.astrong.xyz/time" class="mobile-nav-sublink">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                                    <span>Time Converter</span>
+                                    <span>Exact Time</span>
                                 </a>
                             </div>
                         </div>
@@ -3131,10 +3154,14 @@
         const settingsAction = drawer.querySelector('#mobile-drawer-settings-btn');
         if (settingsAction && !settingsAction.dataset.bound) {
             settingsAction.dataset.bound = 'true';
-            settingsAction.addEventListener('click', () => {
+            settingsAction.addEventListener('click', (e) => {
+                e.preventDefault();
                 closeDrawer();
                 if (typeof window.openSettingsModal === 'function') {
                     window.openSettingsModal();
+                } else {
+                    const btn = document.getElementById('settings-btn') || document.getElementById('settings-toggle');
+                    if (btn) btn.click();
                 }
             });
         }
@@ -3142,10 +3169,14 @@
         const helpAction = drawer.querySelector('#mobile-drawer-help-btn');
         if (helpAction && !helpAction.dataset.bound) {
             helpAction.dataset.bound = 'true';
-            helpAction.addEventListener('click', () => {
+            helpAction.addEventListener('click', (e) => {
+                e.preventDefault();
                 closeDrawer();
                 if (typeof window.openHelpModal === 'function') {
                     window.openHelpModal();
+                } else {
+                    const btn = document.getElementById('help-btn');
+                    if (btn) btn.click();
                 }
             });
         }
@@ -3211,9 +3242,9 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                     </a>
                     <div class="hdr-dropdown-menu">
-                        <a href="https://schedule.astrong.xyz/availability" class="hdr-dropdown-item">Availability Calendar</a>
+                        <a href="https://schedule.astrong.xyz/availability" class="hdr-dropdown-item">Availability</a>
                         <a href="https://schedule.astrong.xyz/starbucks" class="hdr-dropdown-item">Starbucks Shifts</a>
-                        <a href="https://schedule.astrong.xyz/school/" class="hdr-dropdown-item">School Schedule</a>
+                        <a href="https://schedule.astrong.xyz/school/" class="hdr-dropdown-item">School Classes</a>
                         <a href="https://calendar.app.google/j4EnNgkWWep23ZZC7" target="_blank" rel="noopener noreferrer" class="hdr-dropdown-item">Find a Time</a>
                     </div>
                 </div>
