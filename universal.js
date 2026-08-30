@@ -1,5 +1,10 @@
 // universal.js - Loads and applies the persistent accent theme across all pages
 (function () {
+    // Prevent 'Confirm Form Resubmission' dialog on page reload
+    if (window.history && window.history.replaceState) {
+        window.history.replaceState(null, null, window.location.href);
+    }
+
     // 0. Subdomain Storage Policy Enforcement & Root Cookie Helpers
     const isSubdomain = window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz');
     if (isSubdomain) {
