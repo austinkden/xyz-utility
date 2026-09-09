@@ -1025,35 +1025,113 @@
         });
     }
 
-    // 3. Toast Notification System
-    window.showToast = function (message, duration = 2500) {
+    // 3. Toast / Snackbar Notification System
+    window.showToast = function (message, type = 'info', duration = 2500) {
+        if (typeof type === 'number') {
+            duration = type;
+            type = 'info';
+        }
+
         const existingToast = document.querySelector('.astrong-toast');
         if (existingToast) {
             existingToast.remove();
         }
 
         const toast = document.createElement('div');
-        toast.className = 'astrong-toast';
+        toast.className = `astrong-toast astrong-toast-${type}`;
         toast.textContent = message;
+
+        // Color palettes for semantic feedback
+        let bg = 'var(--surface-variant, #2d2a33)';
+        let border = 'var(--primary, #8859ff)';
+        let textColor = 'var(--on-surface, #e6e1e5)';
+
+        if (type === 'success') {
+            bg = '#14532d';
+            border = '#22c55e';
+            textColor = '#dcfce7';
+        } else if (type === 'error' || type === 'failure') {
+            bg = '#7f1d1d';
+            border = '#ef4444';
+            textColor = '#fee2e2';
+        } else if (type === 'warning') {
+            bg = '#78350f';
+            border = '#f59e0b';
+            textColor = '#fef3c7';
+        }
 
         Object.assign(toast.style, {
             position: 'fixed',
             bottom: '24px',
             left: '50%',
             transform: 'translateX(-50%) translateY(16px)',
-            background: 'var(--surface-variant, #2d2a33)',
-            color: 'var(--on-surface, #e6e1e5)',
-            border: '1px solid var(--primary, #8859ff)',
+            maxWidth: 'min(90vw, 460px)',
+            width: 'max-content',
+            background: bg,
+            color: textColor,
+            border: `1px solid ${border}`,
             borderRadius: '12px',
-            padding: '0.6rem 1.25rem',
+            padding: '0.65rem 1.25rem',
             fontSize: '0.85rem',
             fontWeight: '600',
+            textAlign: 'center',
+            boxSizing: 'border-box',
             zIndex: '2147483647',
             opacity: '0',
-            transition: 'opacity 0.2s ease, transform 0.2s ease',
-            pointerEvents: 'none',
+            transition: 'opacity 0.22s cubic-bezier(0.2, 0, 0, 1), transform 0.22s cubic-bezier(0.2, 0, 0, 1)',
+            pointerEvents: 'auto',
+            touchAction: 'pan-y',
+            cursor: 'grab',
             userSelect: 'none',
             webkitUserSelect: 'none'
+        });
+
+        // Swipe away functionality (left or right)
+        let touchStartX = 0;
+        let currentDeltaX = 0;
+        let isSwiping = false;
+        let dismissTimer = null;
+
+        const dismissToast = (direction = 0) => {
+            if (dismissTimer) clearTimeout(dismissTimer);
+            toast.style.transition = 'transform 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease';
+            toast.style.opacity = '0';
+            if (direction !== 0) {
+                toast.style.transform = `translateX(calc(-50% + ${direction * 120}px)) translateY(0)`;
+            } else {
+                toast.style.transform = 'translateX(-50%) translateY(-8px)';
+            }
+            setTimeout(() => toast.remove(), 200);
+        };
+
+        toast.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            touchStartX = e.touches[0].clientX;
+            currentDeltaX = 0;
+            isSwiping = true;
+            toast.style.transition = 'none';
+            if (dismissTimer) clearTimeout(dismissTimer);
+        }, { passive: true });
+
+        toast.addEventListener('touchmove', (e) => {
+            if (!isSwiping || e.touches.length !== 1) return;
+            currentDeltaX = e.touches[0].clientX - touchStartX;
+            const progress = Math.min(Math.abs(currentDeltaX) / 100, 1);
+            toast.style.transform = `translateX(calc(-50% + ${currentDeltaX}px)) translateY(0)`;
+            toast.style.opacity = String(1 - progress * 0.7);
+        }, { passive: true });
+
+        toast.addEventListener('touchend', () => {
+            if (!isSwiping) return;
+            isSwiping = false;
+            if (Math.abs(currentDeltaX) > 40) {
+                dismissToast(currentDeltaX > 0 ? 1 : -1);
+            } else {
+                toast.style.transition = 'transform 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease';
+                toast.style.transform = 'translateX(-50%) translateY(0)';
+                toast.style.opacity = '1';
+                dismissTimer = setTimeout(() => dismissToast(0), 1800);
+            }
         });
 
         document.body.appendChild(toast);
@@ -1063,10 +1141,8 @@
             toast.style.transform = 'translateX(-50%) translateY(0)';
         }, 10);
 
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateX(-50%) translateY(-8px)';
-            setTimeout(() => toast.remove(), 200);
+        dismissTimer = setTimeout(() => {
+            dismissToast(0);
         }, duration);
     };
 
@@ -1104,7 +1180,7 @@
             if (devId && devId !== '--------') {
                 const notify = () => {
                     if (window.showToast) {
-                        window.showToast('Copied Device ID to clipboard');
+                        window.showToast('Copied Device ID to clipboard', 'success');
                     }
                 };
 
@@ -1182,9 +1258,6 @@
                         <clipPath id="sunny" clipPathUnits="objectBoundingBox">
                             <path d="M0.7702 0.1213C0.8013 0.1234 0.8168 0.1245 0.8294 0.1300C0.8476 0.1379 0.8621 0.1524 0.8700 0.1706C0.8755 0.1832 0.8766 0.1987 0.8787 0.2298L0.8835 0.3008C0.8844 0.3134 0.8848 0.3197 0.8862 0.3257C0.8882 0.3344 0.8916 0.3427 0.8963 0.3502C0.8996 0.3554 0.9038 0.3602 0.9121 0.3696L0.9588 0.4232C0.9793 0.4467 0.9896 0.4585 0.9946 0.4713C1.0018 0.4897 1.0018 0.5103 0.9946 0.5287C0.9896 0.5415 0.9793 0.5533 0.9588 0.5768L0.9121 0.6303C0.9038 0.6399 0.8996 0.6446 0.8963 0.6498C0.8916 0.6573 0.8882 0.6656 0.8862 0.6743C0.8848 0.6803 0.8844 0.6866 0.8835 0.6992L0.8787 0.7702C0.8766 0.8013 0.8755 0.8168 0.8700 0.8294C0.8621 0.8476 0.8476 0.8621 0.8294 0.8700C0.8168 0.8755 0.8013 0.8766 0.7702 0.8787L0.6992 0.8835C0.6866 0.8844 0.6803 0.8848 0.6743 0.8862C0.6656 0.8882 0.6573 0.8916 0.6498 0.8963C0.6446 0.8996 0.6399 0.9038 0.6303 0.9121L0.5768 0.9588C0.5533 0.9793 0.5415 0.9896 0.5287 0.9946C0.5103 1.0018 0.4897 1.0018 0.4713 0.9946C0.4585 0.9896 0.4467 0.9793 0.4232 0.9588L0.3696 0.9121C0.3602 0.9038 0.3554 0.8996 0.3502 0.8963C0.3427 0.8916 0.3344 0.8882 0.3257 0.8862C0.3197 0.8848 0.3134 0.8844 0.3008 0.8835L0.2298 0.8787C0.1987 0.8766 0.1832 0.8755 0.1706 0.8700C0.1524 0.8621 0.1379 0.8476 0.1300 0.8294C0.1245 0.8168 0.1234 0.8013 0.1213 0.7702L0.1165 0.6992C0.1156 0.6866 0.1152 0.6803 0.1138 0.6743C0.1118 0.6656 0.1084 0.6573 0.1037 0.6498C0.1004 0.6446 0.0962 0.6399 0.0879 0.6303L0.0412 0.5768C0.0207 0.5533 0.0104 0.5415 0.0054 0.5287C-0.0018 0.5103 -0.0018 0.4897 0.0054 0.4713C0.0104 0.4585 0.0207 0.4467 0.0412 0.4232L0.0879 0.3696C0.0962 0.3602 0.1004 0.3554 0.1037 0.3502C0.1084 0.3427 0.1118 0.3344 0.1138 0.3257C0.1152 0.3197 0.1156 0.3134 0.1165 0.3008L0.1213 0.2298C0.1234 0.1987 0.1245 0.1832 0.1300 0.1706C0.1379 0.1524 0.1524 0.1379 0.1706 0.1300C0.1832 0.1245 0.1987 0.1234 0.2298 0.1213L0.3008 0.1165C0.3134 0.1156 0.3197 0.1152 0.3257 0.1138C0.3344 0.1118 0.3427 0.1084 0.3502 0.1037C0.3554 0.1004 0.3602 0.0962 0.3696 0.0879L0.4232 0.0412C0.4467 0.0207 0.4585 0.0104 0.4713 0.0054C0.4897 -0.0018 0.5103 -0.0018 0.5287 0.0054C0.5415 0.0104 0.5533 0.0207 0.5768 0.0412L0.6303 0.0879C0.6399 0.0962 0.6446 0.1004 0.6498 0.1037C0.6573 0.1084 0.6656 0.1118 0.6743 0.1138C0.6803 0.1152 0.6866 0.1156 0.6992 0.1165L0.7702 0.1213Z" />
                         </clipPath>
-                        <clipPath id="pentagon" clipPathUnits="objectBoundingBox">
-                            <path d="M0.4023 0.1144C0.4606 0.0720 0.5394 0.0720 0.5977 0.1144L0.8674 0.3103C0.9256 0.3526 0.9500 0.4276 0.9277 0.4961L0.8247 0.8131C0.8025 0.8816 0.7387 0.9280 0.6667 0.9280H0.3333C0.2613 0.9280 0.1975 0.8816 0.1753 0.8131L0.0723 0.4961C0.0500 0.4276 0.0744 0.3526 0.1326 0.3103L0.4023 0.1144Z" />
-                        </clipPath>
                         <clipPath id="twelve-sided-cookie" clipPathUnits="objectBoundingBox">
                             <path d="M0.4272 0.0308C0.4289 0.0291 0.4297 0.0283 0.4304 0.0276C0.4695 -0.0092 0.5305 -0.0092 0.5696 0.0276C0.5703 0.0283 0.5711 0.0291 0.5728 0.0308C0.5738 0.0318 0.5743 0.0323 0.5748 0.0327C0.5998 0.0566 0.6353 0.0661 0.6688 0.0579C0.6695 0.0578 0.6702 0.0576 0.6715 0.0572C0.6738 0.0566 0.6750 0.0563 0.6760 0.0561C0.7282 0.0438 0.7810 0.0743 0.7964 0.1257C0.7967 0.1266 0.7970 0.1278 0.7977 0.1300C0.7981 0.1314 0.7983 0.1321 0.7984 0.1327C0.8082 0.1659 0.8341 0.1918 0.8673 0.2016C0.8679 0.2017 0.8686 0.2019 0.8700 0.2023C0.8722 0.2030 0.8734 0.2033 0.8743 0.2036C0.9257 0.2190 0.9562 0.2718 0.9439 0.3240C0.9437 0.3250 0.9434 0.3262 0.9428 0.3285C0.9424 0.3298 0.9422 0.3305 0.9421 0.3312C0.9339 0.3647 0.9434 0.4002 0.9673 0.4252C0.9677 0.4257 0.9682 0.4262 0.9692 0.4272C0.9709 0.4289 0.9717 0.4297 0.9724 0.4304C1.0092 0.4695 1.0092 0.5305 0.9724 0.5696C0.9717 0.5703 0.9709 0.5711 0.9692 0.5728C0.9682 0.5738 0.9677 0.5743 0.9673 0.5748C0.9434 0.5998 0.9339 0.6353 0.9421 0.6688C0.9422 0.6695 0.9424 0.6702 0.9428 0.6715C0.9434 0.6738 0.9437 0.6750 0.9439 0.6760C0.9562 0.7282 0.9257 0.7810 0.8743 0.7964C0.8734 0.7967 0.8722 0.7970 0.8700 0.7977C0.8686 0.7981 0.8679 0.7983 0.8673 0.7984C0.8341 0.8082 0.8082 0.8341 0.7984 0.8673C0.7983 0.8679 0.7981 0.8686 0.7977 0.8700C0.7970 0.8722 0.7967 0.8734 0.7964 0.8743C0.7810 0.9257 0.7282 0.9562 0.6760 0.9439C0.6750 0.9437 0.6738 0.9434 0.6715 0.9428C0.6702 0.9424 0.6695 0.9422 0.6688 0.9421C0.6353 0.9339 0.5998 0.9434 0.5748 0.9673C0.5743 0.9677 0.5738 0.9682 0.5728 0.9692C0.5711 0.9709 0.5703 0.9717 0.5696 0.9724C0.5305 1.0092 0.4695 1.0092 0.4304 0.9724C0.4297 0.9717 0.4289 0.9709 0.4272 0.9692C0.4262 0.9682 0.4257 0.9677 0.4252 0.9673C0.4002 0.9434 0.3647 0.9339 0.3312 0.9421C0.3305 0.9422 0.3298 0.9424 0.3285 0.9428C0.3262 0.9434 0.3250 0.9437 0.3240 0.9439C0.2718 0.9562 0.2190 0.9257 0.2036 0.8743C0.2033 0.8734 0.2030 0.8722 0.2023 0.8700C0.2019 0.8686 0.2017 0.8679 0.2016 0.8673C0.1918 0.8341 0.1659 0.8082 0.1327 0.7984C0.1321 0.7983 0.1314 0.7981 0.1300 0.7977C0.1278 0.7970 0.1266 0.7967 0.1257 0.7964C0.0743 0.7810 0.0438 0.7282 0.0561 0.6760C0.0563 0.6750 0.0566 0.6738 0.0572 0.6715C0.0576 0.6702 0.0578 0.6695 0.0579 0.6688C0.0661 0.6353 0.0566 0.5998 0.0327 0.5748C0.0323 0.5743 0.0318 0.5738 0.0308 0.5728C0.0291 0.5711 0.0283 0.5703 0.0276 0.5696C-0.0092 0.5305 -0.0092 0.4695 0.0276 0.4304C0.0283 0.4297 0.0291 0.4289 0.0308 0.4272C0.0318 0.4262 0.0323 0.4257 0.0327 0.4252C0.0566 0.4002 0.0661 0.3647 0.0579 0.3312C0.0578 0.3305 0.0576 0.3298 0.0572 0.3285C0.0566 0.3262 0.0563 0.3250 0.0561 0.3240C0.0438 0.2718 0.0743 0.2190 0.1257 0.2036C0.1266 0.2033 0.1278 0.2030 0.1300 0.2023C0.1314 0.2019 0.1321 0.2017 0.1327 0.2016C0.1659 0.1918 0.1918 0.1659 0.2016 0.1327C0.2017 0.1321 0.2019 0.1314 0.2023 0.1300C0.2030 0.1278 0.2033 0.1266 0.2036 0.1257C0.2190 0.0743 0.2718 0.0438 0.3240 0.0561C0.3250 0.0563 0.3262 0.0566 0.3285 0.0572C0.3298 0.0576 0.3305 0.0578 0.3312 0.0579C0.3647 0.0661 0.4002 0.0566 0.4252 0.0327C0.4257 0.0323 0.4262 0.0318 0.4272 0.0308Z" />
                         </clipPath>
@@ -1208,7 +1281,6 @@
 
         const shapes = [
             'four-sided-cookie',
-            'pentagon',
             'six-sided-cookie',
             'nine-sided-cookie',
             'sunny',
@@ -2561,7 +2633,7 @@
                 z-index: 9998;
                 opacity: 0;
                 pointer-events: none;
-                transition: opacity 0.2s ease;
+                transition: opacity 0.3s cubic-bezier(0.2, 0, 0, 1);
                 backdrop-filter: blur(4px);
                 -webkit-backdrop-filter: blur(4px);
             }
@@ -2573,14 +2645,16 @@
                 width: min(340px, 86vw);
                 background: var(--surface, #1d1b20);
                 border-left: 1px solid var(--outline, #49454f);
+                border-radius: 28px 0 0 28px;
                 z-index: 9999;
                 transform: translateX(100%);
-                transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                transition: transform 0.35s cubic-bezier(0.2, 0, 0, 1);
                 display: flex;
                 flex-direction: column;
                 user-select: none;
                 -webkit-user-select: none;
                 box-sizing: border-box;
+                overflow: hidden;
             }
             :root.light-mode .mobile-drawer {
                 background: #fdfbff;
@@ -2601,7 +2675,7 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: 1rem 1.25rem;
+                padding: 1.1rem 1.25rem;
                 border-bottom: 1px solid var(--outline, rgba(255, 255, 255, 0.08));
             }
             :root.light-mode .mobile-drawer-header {
@@ -2610,22 +2684,23 @@
             .mobile-drawer-body {
                 flex: 1;
                 overflow-y: auto;
-                padding: 1.25rem;
+                padding: 1rem 1rem 1.5rem;
                 display: flex;
                 flex-direction: column;
-                gap: 1.4rem;
+                gap: 1.25rem;
             }
             .mobile-drawer-section {
                 display: flex;
                 flex-direction: column;
-                gap: 0.6rem;
+                gap: 0.35rem;
             }
             .mobile-drawer-section-title {
-                font-size: 0.75rem;
+                font-size: 0.72rem;
                 font-weight: 700;
                 text-transform: uppercase;
-                letter-spacing: 0.06em;
+                letter-spacing: 0.08em;
                 color: var(--on-surface-variant, #cac4d0);
+                padding: 4px 12px 2px;
                 opacity: 0.85;
             }
             :root.light-mode .mobile-drawer-section-title {
@@ -2634,120 +2709,106 @@
             .mobile-nav-group {
                 display: flex;
                 flex-direction: column;
-                gap: 0.35rem;
+                gap: 0.25rem;
             }
             .mobile-nav-link {
                 display: flex;
                 align-items: center;
-                gap: 0.65rem;
-                padding: 8px 12px;
-                border-radius: 12px;
-                background: var(--surface-variant, #2d2a33);
-                border: 1px solid var(--outline, #49454f);
+                gap: 0.75rem;
+                min-height: 48px;
+                padding: 0 16px;
+                border-radius: 24px;
+                background: transparent;
+                border: 1px solid transparent;
                 color: var(--on-surface, #e6e1e5);
                 text-decoration: none;
-                font-size: 0.9rem;
+                font-size: 0.92rem;
                 font-weight: 600;
-                transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+                transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s cubic-bezier(0.2, 0, 0, 1);
+                box-sizing: border-box;
             }
             :root.light-mode .mobile-nav-link {
-                background: #e7e0ec;
-                border-color: #79747e;
                 color: #1d1b20;
             }
-            .mobile-nav-link:hover {
-                border-color: var(--primary, #8859ff);
+            .mobile-nav-link:hover,
+            .mobile-nav-link:active {
+                background: rgba(136, 89, 255, 0.12);
                 color: var(--primary, #8859ff);
+            }
+            :root.light-mode .mobile-nav-link:hover,
+            :root.light-mode .mobile-nav-link:active {
+                background: rgba(136, 89, 255, 0.12);
+                color: #6750a4;
             }
             .mobile-nav-sublinks {
                 display: flex;
                 flex-direction: column;
-                gap: 0.25rem;
-                padding-left: 0.5rem;
+                gap: 0.2rem;
+                margin-left: 12px;
+                padding-left: 8px;
+                border-left: 2px solid var(--outline, rgba(255, 255, 255, 0.08));
+            }
+            :root.light-mode .mobile-nav-sublinks {
+                border-left-color: rgba(0, 0, 0, 0.08);
             }
             .mobile-nav-sublink {
                 display: flex;
                 align-items: center;
-                gap: 0.6rem;
-                padding: 7px 12px;
-                border-radius: 8px;
+                gap: 0.65rem;
+                min-height: 40px;
+                padding: 0 14px;
+                border-radius: 20px;
                 color: var(--on-surface-variant, #cac4d0);
                 text-decoration: none;
                 font-size: 0.85rem;
                 font-weight: 500;
-                transition: background-color 0.15s ease, color 0.15s ease;
+                transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s cubic-bezier(0.2, 0, 0, 1);
+                box-sizing: border-box;
             }
             :root.light-mode .mobile-nav-sublink {
                 color: #49454f;
             }
-            .mobile-nav-sublink:hover {
-                background: var(--surface-variant, #2d2a33);
+            .mobile-nav-sublink:hover,
+            .mobile-nav-sublink:active {
+                background: rgba(136, 89, 255, 0.1);
                 color: var(--on-surface, #ffffff);
             }
-            :root.light-mode .mobile-nav-sublink:hover {
-                background: #e7e0ec;
+            :root.light-mode .mobile-nav-sublink:hover,
+            :root.light-mode .mobile-nav-sublink:active {
+                background: rgba(136, 89, 255, 0.1);
                 color: #1d1b20;
-            }
-            .mobile-chips-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 0.4rem;
-                margin-top: 0.2rem;
-            }
-            .mobile-chip {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 6px 10px;
-                background: var(--surface-variant, #2d2a33);
-                border: 1px solid var(--outline, #49454f);
-                border-radius: 10px;
-                color: var(--on-surface-variant, #cac4d0);
-                text-decoration: none;
-                font-size: 0.8rem;
-                font-weight: 500;
-                text-align: center;
-                transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-            }
-            :root.light-mode .mobile-chip {
-                background: #e7e0ec;
-                border-color: #79747e;
-                color: #49454f;
-            }
-            .mobile-chip:hover {
-                border-color: var(--primary, #8859ff);
-                color: var(--primary, #8859ff);
             }
             .mobile-actions-list {
                 display: flex;
                 flex-direction: column;
-                gap: 0.45rem;
+                gap: 0.35rem;
             }
             .mobile-action-item {
                 display: flex;
                 align-items: center;
                 gap: 0.75rem;
-                padding: 10px 12px;
-                background: var(--surface-variant, #2d2a33);
-                border: 1px solid var(--outline, #49454f);
-                border-radius: 12px;
+                min-height: 48px;
+                padding: 0 16px;
+                background: transparent;
+                border: 1px solid transparent;
+                border-radius: 24px;
                 color: var(--on-surface, #e6e1e5);
-                font-size: 0.88rem;
+                font-size: 0.9rem;
                 font-weight: 600;
                 cursor: pointer;
                 text-align: left;
                 width: 100%;
                 box-sizing: border-box;
-                transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+                transition: background-color 0.2s cubic-bezier(0.2, 0, 0, 1), color 0.2s cubic-bezier(0.2, 0, 0, 1);
             }
             :root.light-mode .mobile-action-item {
-                background: #e7e0ec;
-                border-color: #79747e;
                 color: #1d1b20;
             }
-            .mobile-action-item:hover {
-                border-color: var(--primary, #8859ff);
+            .mobile-action-item:hover,
+            .mobile-action-item:active {
+                background: rgba(136, 89, 255, 0.12);
                 color: var(--primary, #8859ff);
+            }
             }
             .pfp-wrapper-small {
                 width: 28px;
@@ -2833,9 +2894,13 @@
                 font-family: 'JetBrains Mono', monospace;
             }
             .site-footer-device .device-id-display {
-                color: var(--primary, #8859ff);
+                color: var(--on-surface-variant, #a1a1aa);
                 font-weight: 600;
                 cursor: pointer;
+                transition: color 0.15s ease;
+            }
+            .site-footer-device .device-id-display:hover {
+                color: var(--on-surface, #ffffff);
             }
             .site-footer-nav {
                 display: flex;
@@ -2872,11 +2937,11 @@
                 color: var(--primary, #8859ff);
             }
             .site-footer-email-highlight {
-                color: var(--on-surface, #e6e1e5) !important;
+                color: var(--primary, #8859ff) !important;
                 font-weight: 600;
             }
             :root.light-mode .site-footer-email-highlight {
-                color: #1d1b20 !important;
+                color: var(--primary, #8859ff) !important;
             }
             .site-footer-bottom {
                 display: flex;
@@ -3434,13 +3499,6 @@
                 </div>
                 <div class="site-footer-bottom">
                     <span class="site-footer-copyright">&copy; 2026 Austin Strong. All rights reserved.</span>
-                    <a href="https://github.com/austinkden/austinkden.github.io" target="_blank" rel="noopener noreferrer" class="site-footer-github" aria-label="View Source on GitHub">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-                            <path d="M9 18c-4.51 2-5-2-7-2" />
-                        </svg>
-                        Source Code
-                    </a>
                 </div>
             </div>
         `;
