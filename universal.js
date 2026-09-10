@@ -3182,6 +3182,355 @@
                     margin: 0.5rem 0.65rem 0.4rem !important;
                 }
             }
+
+            /* Universal Settings & Help Modals */
+            .settings-modal, .help-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                z-index: 10000;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                box-sizing: border-box;
+            }
+            .settings-modal.active, .help-modal.active {
+                display: flex !important;
+            }
+            .settings-modal-overlay, .help-modal-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(18, 16, 22, 0.75);
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+                transition: opacity 0.2s ease;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            :root.light-mode .settings-modal-overlay,
+            :root.light-mode .help-modal-overlay {
+                background-color: rgba(253, 251, 255, 0.75);
+            }
+            .settings-modal-container, .help-modal-container {
+                position: relative;
+                width: 100%;
+                max-width: 420px;
+                max-height: 90vh;
+                display: flex;
+                flex-direction: column;
+                background-color: var(--surface, #1d1b20);
+                border: 1px solid var(--outline, #49454f);
+                border-radius: 24px;
+                z-index: 10001;
+                overflow: visible;
+                animation: astrongModalFadeIn 0.2s ease-out;
+                box-sizing: border-box;
+            }
+            .help-modal-container {
+                overflow: hidden;
+            }
+            @keyframes astrongModalFadeIn {
+                from { opacity: 0; transform: scale(0.95); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            .settings-modal-header, .help-modal-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1.25rem 1.5rem 0.75rem 1.5rem;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                flex-shrink: 0;
+            }
+            :root.light-mode .settings-modal-header,
+            :root.light-mode .help-modal-header {
+                border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            }
+            .settings-modal-title, .help-modal-title {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: var(--on-surface, #e6e1e5);
+                margin: 0;
+                user-select: none;
+                -webkit-user-select: none;
+                font-family: inherit;
+            }
+            .settings-close-btn, .help-close-btn {
+                background: transparent;
+                border: none;
+                color: var(--on-surface-variant, #cac4d0);
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 6px;
+                border-radius: 50%;
+                transition: color 0.2s ease, background-color 0.2s ease;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .settings-close-btn:hover, .help-close-btn:hover {
+                color: var(--primary, #8859ff);
+                background-color: rgba(255, 255, 255, 0.05);
+            }
+            :root.light-mode .settings-close-btn:hover,
+            :root.light-mode .help-close-btn:hover {
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+            .settings-modal-body, .help-modal-body {
+                padding: 1.5rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+                box-sizing: border-box;
+            }
+            .settings-modal-body {
+                overflow: visible;
+            }
+            .help-modal-body {
+                overflow-y: auto;
+                flex: 1;
+                min-height: 0;
+            }
+            .settings-section, .help-section {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .settings-section h4, .help-section h4 {
+                font-size: 0.9rem;
+                font-weight: 700;
+                color: var(--primary, #8859ff);
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin: 0;
+                user-select: none;
+                -webkit-user-select: none;
+                font-family: inherit;
+            }
+            .help-section p {
+                font-size: 0.85rem;
+                line-height: 1.5;
+                color: var(--on-surface-variant, #cac4d0);
+                margin: 0;
+            }
+            .custom-select {
+                position: relative;
+                width: 100%;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .select-trigger {
+                background-color: var(--surface, #1d1b20);
+                border: 1px solid var(--outline, #49454f);
+                border-radius: 12px;
+                padding: 0.75rem 1rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                cursor: pointer;
+                transition: border-color 0.2s ease, background-color 0.2s ease;
+                color: var(--on-surface, #e6e1e5);
+            }
+            .select-trigger:hover {
+                border-color: var(--primary, #8859ff);
+                background-color: var(--surface-variant, #2d2a33);
+            }
+            .select-trigger-text {
+                font-size: 0.95rem;
+                font-weight: 600;
+            }
+            .select-arrow {
+                color: var(--on-surface-variant, #cac4d0);
+                transition: transform 0.2s ease;
+            }
+            .custom-select.open .select-arrow {
+                transform: rotate(180deg);
+            }
+            .select-options {
+                position: fixed;
+                background-color: var(--surface-variant, #2d2a33);
+                border: 1px solid var(--outline, #49454f);
+                border-radius: 14px;
+                z-index: 99999;
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+                max-height: 260px;
+                overflow-y: auto;
+                display: none;
+                padding: 6px;
+                flex-direction: column;
+                gap: 4px;
+                box-sizing: border-box;
+            }
+            .select-option {
+                padding: 0.6rem 0.85rem;
+                font-size: 0.9rem;
+                font-weight: 600;
+                border-radius: 8px;
+                cursor: pointer;
+                transition: background-color 0.2s ease;
+            }
+            .select-option:hover {
+                background-color: rgba(255, 255, 255, 0.08);
+            }
+            :root.light-mode .select-option:hover {
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+            .select-option.selected {
+                background-color: color-mix(in srgb, var(--primary-container, #4527a0) 25%, transparent);
+            }
+            .option-red { color: #eb3f56 !important; }
+            :root.light-mode .option-red { color: #b32638 !important; }
+            .option-orange { color: #ff7524 !important; }
+            :root.light-mode .option-orange { color: #bf4100 !important; }
+            .option-yellow { color: #f5b500 !important; }
+            :root.light-mode .option-yellow { color: #bf8d00 !important; }
+            .option-green { color: #00c853 !important; }
+            :root.light-mode .option-green { color: #1f793c !important; }
+            .option-blue { color: #00b0ff !important; }
+            :root.light-mode .option-blue { color: #1976d2 !important; }
+            .option-purple { color: #8859ff !important; }
+            :root.light-mode .option-purple { color: #6536ec !important; }
+            .option-white { color: #ffffff !important; }
+            :root.light-mode .option-white { color: #121016 !important; }
+            .appearance-toggle-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.25rem 0;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .appearance-toggle-label {
+                font-size: 0.95rem;
+                font-weight: 600;
+                color: var(--on-surface, #e6e1e5);
+            }
+            .theme-toggle-pill {
+                position: relative;
+                display: flex;
+                align-items: center;
+                background-color: var(--surface-variant, #2d2a33);
+                border: 1px solid var(--outline, #49454f);
+                border-radius: 30px;
+                padding: 4px;
+                cursor: pointer;
+                width: 96px;
+                height: 48px;
+                user-select: none;
+                -webkit-user-select: none;
+                outline: none;
+                box-sizing: border-box;
+            }
+            .toggle-pill-thumb {
+                position: absolute;
+                top: 4px;
+                left: 4px;
+                width: 42px;
+                height: 38px;
+                background-color: var(--surface, #1d1b20);
+                border-radius: 20px;
+                transition: transform 0.35s cubic-bezier(0.34, 1.4, 0.64, 1), background-color 0.25s ease;
+                z-index: 1;
+            }
+            .toggle-pill-option {
+                position: relative;
+                flex: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+                z-index: 2;
+                color: var(--on-surface-variant, #cac4d0);
+                opacity: 0.4;
+                transition: color 0.25s ease, opacity 0.25s ease;
+            }
+            .theme-toggle-pill:hover .toggle-pill-option {
+                opacity: 0.7;
+            }
+            .theme-toggle-pill[data-active="light"] .option-light {
+                color: var(--on-surface, #121016);
+                opacity: 1;
+            }
+            .theme-toggle-pill[data-active="dark"] .option-dark {
+                color: #ffffff;
+                opacity: 1;
+            }
+            .theme-toggle-pill[data-active="dark"] .toggle-pill-thumb {
+                transform: translateX(44px);
+            }
+            .shortcut-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+            .shortcut-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-size: 0.85rem;
+                color: var(--on-surface, #e6e1e5);
+                user-select: none;
+                -webkit-user-select: none;
+            }
+            .shortcut-keys {
+                display: inline-flex;
+                align-items: center;
+                gap: 2px;
+            }
+            .shortcut-keys .plus-sign {
+                color: var(--on-surface-variant, #cac4d0);
+                font-size: 0.75rem;
+                margin: 0 1px;
+            }
+            .shortcut-item kbd, .shortcut-keys kbd {
+                font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+                font-size: 0.75rem;
+                background: var(--surface-variant, #2d2a33);
+                border: 1px solid var(--outline, #49454f);
+                padding: 2px 6px;
+                border-radius: 4px;
+                color: var(--on-surface, #e6e1e5);
+            }
+            .help-modal-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 1.5rem 1.5rem 1.5rem;
+                border-top: 1px solid rgba(255, 255, 255, 0.05);
+                flex-shrink: 0;
+            }
+            :root.light-mode .help-modal-footer {
+                border-top: 1px solid rgba(0, 0, 0, 0.05);
+            }
+            .github-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: var(--on-surface-variant, #cac4d0);
+                text-decoration: none;
+                font-size: 0.8rem;
+                font-weight: 600;
+                padding: 6px 12px;
+                border: 1px solid var(--outline, #49454f);
+                border-radius: 8px;
+                background: transparent;
+                transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+                user-select: none;
+                -webkit-user-select: none;
+                cursor: pointer;
+            }
+            .github-btn:hover {
+                color: var(--primary, #8859ff);
+                border-color: var(--primary, #8859ff);
+                background-color: rgba(255, 255, 255, 0.04);
+            }
         `;
         (document.head || document.documentElement).appendChild(navStyle);
     }
@@ -3399,6 +3748,307 @@
         }
     }
 
+    function initUniversalModals() {
+        let settingsModal = document.getElementById('settings-modal');
+        if (!settingsModal) {
+            settingsModal = document.createElement('div');
+            settingsModal.id = 'settings-modal';
+            settingsModal.className = 'settings-modal';
+            settingsModal.setAttribute('aria-hidden', 'true');
+            settingsModal.innerHTML = `
+                <div class="settings-modal-overlay"></div>
+                <div class="settings-modal-container">
+                    <div class="settings-modal-header">
+                        <h3 class="settings-modal-title">Settings</h3>
+                        <button id="settings-close-btn" class="settings-close-btn" aria-label="Close dialog">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                        </button>
+                    </div>
+                    <div class="settings-modal-body">
+                        <section class="settings-section">
+                            <h4>Accent Color</h4>
+                            <div class="custom-select" id="accent-select">
+                                <div class="select-trigger" role="button" aria-haspopup="listbox">
+                                    <span class="select-trigger-text">Select Accent</span>
+                                    <svg class="select-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                </div>
+                                <div class="select-options" role="listbox">
+                                    <div class="select-option option-red" data-value="red" role="option">Red</div>
+                                    <div class="select-option option-orange" data-value="orange" role="option">Orange</div>
+                                    <div class="select-option option-yellow" data-value="yellow" role="option">Yellow</div>
+                                    <div class="select-option option-green" data-value="green" role="option">Green</div>
+                                    <div class="select-option option-blue" data-value="blue" role="option">Blue</div>
+                                    <div class="select-option option-purple" data-value="purple" role="option">Purple</div>
+                                    <div class="select-option option-white" data-value="white" role="option">White</div>
+                                </div>
+                            </div>
+                        </section>
+                        <section class="settings-section">
+                            <h4>Appearance</h4>
+                            <div class="appearance-toggle-container">
+                                <span class="appearance-toggle-label">Theme Mode</span>
+                                <div class="theme-toggle-pill" id="theme-toggle-pill" role="button" aria-label="Toggle theme" data-active="dark">
+                                    <div class="toggle-pill-thumb"></div>
+                                    <div class="toggle-pill-option option-light" data-mode="light">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                                    </div>
+                                    <div class="toggle-pill-option option-dark" data-mode="dark">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(settingsModal);
+        }
+
+        let helpModal = document.getElementById('help-modal');
+        if (!helpModal) {
+            helpModal = document.createElement('div');
+            helpModal.id = 'help-modal';
+            helpModal.className = 'help-modal';
+            helpModal.setAttribute('aria-hidden', 'true');
+            helpModal.innerHTML = `
+                <div class="help-modal-overlay"></div>
+                <div class="help-modal-container">
+                    <div class="help-modal-header">
+                        <h3 class="help-modal-title">Help & Info</h3>
+                        <button id="help-close-btn" class="help-close-btn" aria-label="Close dialog">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                        </button>
+                    </div>
+                    <div class="help-modal-body">
+                        <section class="help-section">
+                            <h4>Interactive Profile Cookie</h4>
+                            <p>Click/tap the profile picture to cycle its shape. Right-click or long-press it to reverse its rotation direction.</p>
+                        </section>
+                        <section class="help-section context-menu-help">
+                            <h4>Custom Context Menu</h4>
+                            <p>Right-click or long-press anywhere to open the custom menu. Right-click twice in quick succession to open the default browser menu.</p>
+                        </section>
+                        <section class="help-section shortcuts-section">
+                            <h4>Keyboard Shortcuts</h4>
+                            <div class="shortcut-list">
+                                <div class="shortcut-item">
+                                    <span class="shortcut-keys"><kbd>Ctrl</kbd><span class="plus-sign">+</span><kbd>K</kbd></span>
+                                    <span>Open Command Palette</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>Esc</kbd>
+                                    <span>Close menu / Go back</span>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="help-modal-footer">
+                        <a href="https://github.com/austinkden/austinkden.github.io" target="_blank" rel="noopener noreferrer" class="github-btn" aria-label="View Source on GitHub">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" /><path d="M9 18c-4.51 2-5-2-7-2" /></svg>
+                            Source Code
+                        </a>
+                        <a href="javascript:void(0)" class="github-btn help-device-btn" title="Click to copy Device ID">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                            Device: <span class="device-id-display">--------</span>
+                        </a>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(helpModal);
+        }
+
+        function openSettingsModal() {
+            const modal = document.getElementById('settings-modal');
+            if (!modal) return;
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+
+            const isSubHost = window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz');
+            const savedAccent = getThemeCookie('astrong_accent') || (!isSubHost ? localStorage.getItem('astrong_accent') : null) || 'purple';
+            const savedMode = getThemeCookie('astrong_mode') || (!isSubHost ? localStorage.getItem('astrong_mode') : null) || 'dark';
+
+            syncSettingsUI(savedAccent, savedMode);
+        }
+
+        function closeSettingsModal() {
+            const modal = document.getElementById('settings-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+            const accentSelect = document.getElementById('accent-select');
+            const optionsEl = document.querySelector('.select-options');
+            if (accentSelect) accentSelect.classList.remove('open');
+            if (optionsEl) optionsEl.style.display = 'none';
+        }
+
+        function openHelpModal() {
+            const modal = document.getElementById('help-modal');
+            if (!modal) return;
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+
+            const deviceSpans = modal.querySelectorAll('.device-id-display');
+            deviceSpans.forEach(span => {
+                span.textContent = window.__ASTRONG_DEVICE_ID__ || '--------';
+            });
+        }
+
+        function closeHelpModal() {
+            const modal = document.getElementById('help-modal');
+            if (modal) {
+                modal.classList.remove('active');
+                modal.setAttribute('aria-hidden', 'true');
+            }
+        }
+
+        // Export globally so all handlers can reach them
+        window.openSettingsModal = openSettingsModal;
+        window.closeSettingsModal = closeSettingsModal;
+        window.openHelpModal = openHelpModal;
+        window.closeHelpModal = closeHelpModal;
+
+        // Wire Settings Modal controls if not already bound
+        if (!settingsModal.dataset.bound) {
+            settingsModal.dataset.bound = 'true';
+            const closeBtn = settingsModal.querySelector('#settings-close-btn');
+            if (closeBtn) closeBtn.addEventListener('click', closeSettingsModal);
+
+            const overlay = settingsModal.querySelector('.settings-modal-overlay');
+            if (overlay) overlay.addEventListener('click', closeSettingsModal);
+
+            const themeTogglePill = settingsModal.querySelector('#theme-toggle-pill');
+            if (themeTogglePill) {
+                themeTogglePill.addEventListener('click', () => {
+                    const isSubHost = window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz');
+                    const currentMode = getThemeCookie('astrong_mode') || (!isSubHost ? localStorage.getItem('astrong_mode') : null) || 'dark';
+                    const nextMode = currentMode === 'dark' ? 'light' : 'dark';
+
+                    setThemeCookie('astrong_mode', nextMode);
+                    try { localStorage.setItem('astrong_mode', nextMode); } catch (e) {}
+
+                    const savedAccent = getThemeCookie('astrong_accent') || (!isSubHost ? localStorage.getItem('astrong_accent') : null) || 'purple';
+                    applyTheme(savedAccent, nextMode);
+                });
+            }
+
+            const accentSelect = settingsModal.querySelector('#accent-select');
+            if (accentSelect) {
+                const trigger = accentSelect.querySelector('.select-trigger');
+                const triggerText = accentSelect.querySelector('.select-trigger-text');
+                const optionsEl = accentSelect.querySelector('.select-options');
+                const options = accentSelect.querySelectorAll('.select-option');
+
+                if (trigger && optionsEl) {
+                    // Move options panel to document.body so it escapes any clipping
+                    document.body.appendChild(optionsEl);
+                    optionsEl.style.position = 'fixed';
+                    optionsEl.style.zIndex = '99999';
+
+                    function positionDropdown() {
+                        const rect = trigger.getBoundingClientRect();
+                        optionsEl.style.top = (rect.bottom + 6) + 'px';
+                        optionsEl.style.left = rect.left + 'px';
+                        optionsEl.style.width = rect.width + 'px';
+                    }
+
+                    let isOpen = false;
+                    function openDropdown() {
+                        isOpen = true;
+                        accentSelect.classList.add('open');
+                        optionsEl.style.display = 'flex';
+                        positionDropdown();
+                    }
+                    function closeDropdown() {
+                        isOpen = false;
+                        accentSelect.classList.remove('open');
+                        optionsEl.style.display = 'none';
+                    }
+
+                    trigger.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (isOpen) closeDropdown();
+                        else openDropdown();
+                    });
+
+                    options.forEach(option => {
+                        option.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const themeName = option.getAttribute('data-value');
+
+                            options.forEach(opt => opt.classList.remove('selected'));
+                            option.classList.add('selected');
+
+                            if (triggerText) {
+                                triggerText.textContent = option.textContent;
+                                triggerText.style.color = window.getComputedStyle(option).color;
+                            }
+
+                            setThemeCookie('astrong_accent', themeName);
+                            try { localStorage.setItem('astrong_accent', themeName); } catch (e) {}
+
+                            const isSubHost = window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz');
+                            const currentMode = getThemeCookie('astrong_mode') || (!isSubHost ? localStorage.getItem('astrong_mode') : null) || 'dark';
+                            applyTheme(themeName, currentMode);
+                            closeDropdown();
+                        });
+                    });
+
+                    document.addEventListener('click', (e) => {
+                        if (!trigger.contains(e.target) && !optionsEl.contains(e.target)) {
+                            closeDropdown();
+                        }
+                    });
+
+                    window.addEventListener('scroll', () => { if (isOpen) positionDropdown(); }, true);
+                    window.addEventListener('resize', () => { if (isOpen) positionDropdown(); });
+                }
+            }
+        }
+
+        // Wire Help Modal controls if not already bound
+        if (!helpModal.dataset.bound) {
+            helpModal.dataset.bound = 'true';
+            const helpCloseBtn = helpModal.querySelector('#help-close-btn');
+            if (helpCloseBtn) helpCloseBtn.addEventListener('click', closeHelpModal);
+
+            const helpOverlay = helpModal.querySelector('.help-modal-overlay');
+            if (helpOverlay) helpOverlay.addEventListener('click', closeHelpModal);
+
+            const helpDeviceBtn = helpModal.querySelector('.help-device-btn');
+            if (helpDeviceBtn) {
+                helpDeviceBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (window.__ASTRONG_DEVICE_ID__) {
+                        navigator.clipboard.writeText(window.__ASTRONG_DEVICE_ID__).then(() => {
+                            if (typeof window.showToast === 'function') {
+                                window.showToast('Device ID copied to clipboard');
+                            }
+                        }).catch(() => {});
+                    }
+                });
+            }
+        }
+
+        // Esc key closes modals
+        if (!document.body.dataset.universalModalEscBound) {
+            document.body.dataset.universalModalEscBound = 'true';
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const sm = document.getElementById('settings-modal');
+                    const hm = document.getElementById('help-modal');
+                    if (sm && sm.classList.contains('active')) {
+                        closeSettingsModal();
+                        e.stopImmediatePropagation();
+                    } else if (hm && hm.classList.contains('active')) {
+                        closeHelpModal();
+                        e.stopImmediatePropagation();
+                    }
+                }
+            }, true);
+        }
+    }
+
     function initUniversalHeader() {
         injectUniversalNavStyles();
         let existingHeader = document.querySelector('.top-controls-bar');
@@ -3447,6 +4097,7 @@
         }
 
         initMobileDrawer();
+        initUniversalModals();
 
         if (!existingHeader.querySelector('.hdr-nav')) {
             const brandPill = existingHeader.querySelector('.brand-pill');
@@ -3673,11 +4324,13 @@
         document.addEventListener('DOMContentLoaded', () => {
             initCommandPalette();
             initUniversalHeader();
+            initUniversalModals();
             initUniversalFooter();
         });
     } else {
         initCommandPalette();
         initUniversalHeader();
+        initUniversalModals();
         initUniversalFooter();
     }
 })();
