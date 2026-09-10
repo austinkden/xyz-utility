@@ -81,9 +81,7 @@ body,
     color: var(--on-primary-container, #ffffff);
 }
 
-.fetch-btn:active {
-    transform: scale(0.98);
-}
+
 
 /* Loading & Error */
 .loading-indicator {

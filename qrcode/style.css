@@ -61,9 +61,7 @@
     color: var(--on-primary-container, #ffffff);
 }
 
-.generate-btn:active {
-    transform: scale(0.98);
-}
+
 
 .error-box {
     background: rgba(235, 63, 86, 0.1);

@@ -1150,7 +1150,7 @@
     initDeviceIdCopyHandler();
 
     // 4. Initialize DOM Features
-    document.addEventListener('DOMContentLoaded', () => {
+    function initUniversalDomFeatures() {
         syncSettingsUI();
 
         // A. Inject SVG Cookie path definitions dynamically if needed
@@ -1165,7 +1165,13 @@
 
         // C. Triple Click Version Tag Control Panel Trigger
         initVersionTagControlTrigger();
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initUniversalDomFeatures);
+    } else {
+        initUniversalDomFeatures();
+    }
 
     function initDeviceIdCopyHandler() {
         document.addEventListener('click', (e) => {
@@ -1233,10 +1239,9 @@
     }
 
     function injectSvgDefs() {
-        let svgContainer = document.getElementById('astrong-universal-svg-defs');
-        if (!svgContainer) {
-            svgContainer = document.createElement('div');
-            svgContainer.id = 'astrong-universal-svg-defs';
+        if (document.getElementById('astrong-universal-svg-defs') || document.getElementById('active-clip')) return;
+        const svgContainer = document.createElement('div');
+        svgContainer.id = 'astrong-universal-svg-defs';
             svgContainer.style.position = 'absolute';
             svgContainer.style.width = '0';
             svgContainer.style.height = '0';
@@ -1272,7 +1277,6 @@
             } else {
                 document.documentElement.appendChild(svgContainer);
             }
-        }
     }
 
     function initCookieWrapper(wrapper) {
@@ -1287,7 +1291,7 @@
             'twelve-sided-cookie'
         ];
 
-        let currentShapeIndex = 3; // default 'nine-sided-cookie'
+        let currentShapeIndex = 2; // default 'nine-sided-cookie'
 
         const numPoints = 120;
         const shapePoints = {};
@@ -1343,23 +1347,30 @@
             activePathEl.setAttribute('d', d);
         }
 
-        let rotationAngle = 0;
-        let rotationDirection = 1;
-        let speedMultiplier = 1;
-        let lastTime = performance.now();
+        const isIconContent = !!wrapper.querySelector('.pfp-icon-content') || !wrapper.querySelector('img');
 
-        const rotateLoop = (time) => {
-            const dt = (time - lastTime) / 1000;
-            lastTime = time;
-            rotationAngle += rotationDirection * 36 * speedMultiplier * dt;
-            rotationAngle = rotationAngle % 360;
+        if (!isIconContent) {
+            let rotationAngle = 0;
+            let rotationDirection = 1;
+            let speedMultiplier = 1;
+            let lastTime = performance.now();
 
-            wrapper.style.transform = `rotate(${rotationAngle}deg)`;
-            img.style.transform = `rotate(${-rotationAngle}deg)`;
+            const rotateLoop = (time) => {
+                const dt = (time - lastTime) / 1000;
+                lastTime = time;
+                rotationAngle += rotationDirection * 36 * speedMultiplier * dt;
+                rotationAngle = rotationAngle % 360;
 
+                wrapper.style.transform = `rotate(${rotationAngle}deg)`;
+                img.style.transform = `rotate(${-rotationAngle}deg)`;
+
+                requestAnimationFrame(rotateLoop);
+            };
             requestAnimationFrame(rotateLoop);
-        };
-        requestAnimationFrame(rotateLoop);
+        } else {
+            wrapper.style.transform = '';
+            img.style.transform = '';
+        }
 
         let animationFrameId = null;
         const animatePath = (targetPoints, duration = 300) => {
@@ -1402,6 +1413,7 @@
         const fastMultiplier = 6;
 
         const temporarySpeedUp = () => {
+            if (isIconContent) return;
             if (speedTimeoutId) clearTimeout(speedTimeoutId);
             if (decelerateFrameId) cancelAnimationFrame(decelerateFrameId);
 
@@ -1437,6 +1449,7 @@
 
         // Direction change only
         const reverseRotation = () => {
+            if (isIconContent) return;
             rotationDirection *= -1;
         };
 
@@ -1447,6 +1460,7 @@
 
         // Long press → reverse direction (mobile equivalent of right-click)
         wrapper.addEventListener('pointerdown', (e) => {
+            if (isIconContent) return;
             if (e.pointerType === 'mouse' && e.button !== 0) return;
             isLongPress = false;
             hasReversedThisPress = false;
@@ -1480,7 +1494,7 @@
             }
         });
 
-        // Left click → change shape only + speed-up
+        // Left click → change shape only + speed-up (if rotating)
         wrapper.addEventListener('click', (e) => {
             if (e.pointerType === 'mouse' && e.button !== 0) return;
             if (isLongPress) {
@@ -1488,13 +1502,16 @@
                 return;
             }
             cycleShape();
-            temporarySpeedUp();
+            if (!isIconContent) {
+                temporarySpeedUp();
+            }
         });
 
         // Right click → reverse direction only + speed-up
         wrapper.addEventListener('contextmenu', (e) => {
             e.preventDefault();
             e.stopPropagation();
+            if (isIconContent) return;
             const isTouch = e.pointerType === 'touch' || ('ontouchstart' in window && !window.matchMedia('(pointer: fine)').matches);
             if (isTouch) {
                 if (!hasReversedThisPress) {
@@ -1508,13 +1525,23 @@
             }
         });
 
-        // Auto-cycle shape on root homepage only
-        const isRootHome = document.title === 'Austin Strong';
+        // Auto-cycle shape on root homepage only every 5 seconds
+        const isRootHome = !isIconContent && (document.title === 'Austin Strong') &&
+            (window.location.pathname === '/' || window.location.pathname === '/index.html' || window.location.pathname === '') &&
+            !window.location.pathname.includes('/schedule') &&
+            !window.location.pathname.includes('/utility') &&
+            !window.location.pathname.includes('/about');
+
         if (isRootHome) {
             let autoCycleInterval = setInterval(() => {
                 cycleShape();
-            }, 7500);
-            wrapper.addEventListener('pointerdown', () => clearInterval(autoCycleInterval));
+            }, 5000);
+            wrapper.addEventListener('pointerdown', () => {
+                clearInterval(autoCycleInterval);
+                autoCycleInterval = setInterval(() => {
+                    cycleShape();
+                }, 5000);
+            });
         }
     }
 
@@ -2080,11 +2107,11 @@
                 z-index: 100001;
                 overflow: hidden;
                 box-shadow: none;
-                animation: cmdPaletteFadeIn 0.15s ease-out;
+                animation: cmdPaletteFadeIn 0.22s cubic-bezier(0.2, 0, 0, 1);
                 font-family: 'Google Sans Flex', 'Google Sans', system-ui, -apple-system, sans-serif;
             }
             @keyframes cmdPaletteFadeIn {
-                from { opacity: 0; transform: translateY(-8px); }
+                from { opacity: 0; transform: translateY(-6px); }
                 to { opacity: 1; transform: translateY(0); }
             }
             .cmd-palette-header {
@@ -2449,11 +2476,83 @@
     }
 
     function injectUniversalNavStyles() {
+        injectSvgDefs();
         if (document.getElementById('astrong-universal-nav-styles')) return;
 
         const navStyle = document.createElement('style');
         navStyle.id = 'astrong-universal-nav-styles';
         navStyle.textContent = `
+            /* Universal Theme-Responsive Rounded Scrollbars */
+            ::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+            ::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: color-mix(in srgb, var(--on-surface, #e6e1e5) 18%, transparent);
+                border-radius: 9999px;
+                border: 2px solid transparent;
+                background-clip: padding-box;
+                transition: background-color 0.2s ease;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--primary, #8859ff);
+                border: 1px solid transparent;
+                background-clip: padding-box;
+            }
+            ::-webkit-scrollbar-corner {
+                background: transparent;
+            }
+            :root.light-mode ::-webkit-scrollbar-thumb {
+                background: color-mix(in srgb, var(--on-surface, #1d1b20) 22%, transparent);
+                border: 2px solid transparent;
+                background-clip: padding-box;
+            }
+            :root.light-mode ::-webkit-scrollbar-thumb:hover {
+                background: var(--primary, #8859ff);
+                border: 1px solid transparent;
+                background-clip: padding-box;
+            }
+            * {
+                scrollbar-width: thin;
+                scrollbar-color: color-mix(in srgb, var(--on-surface, #e6e1e5) 18%, transparent) transparent;
+            }
+            :root.light-mode * {
+                scrollbar-color: color-mix(in srgb, var(--on-surface, #1d1b20) 22%, transparent) transparent;
+            }
+
+            html {
+                scrollbar-gutter: stable;
+            }
+
+            :root {
+                --astrong-header-height: 61.6px;
+                --astrong-header-spacing: 17.2px;
+                --astrong-header-left: 1.5rem;
+            }
+
+            .back-link {
+                position: absolute !important;
+                top: calc(var(--astrong-header-height, 61.6px) + var(--astrong-header-spacing, 17.2px)) !important;
+                left: var(--astrong-header-left, 1.5rem) !important;
+                z-index: 1000 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                color: var(--on-surface-variant, var(--text-secondary, #cac4d0));
+                text-decoration: none !important;
+                font-size: 0.95rem !important;
+                font-weight: 500 !important;
+                transition: color 0.15s ease !important;
+                user-select: none !important;
+                -webkit-user-select: none !important;
+            }
+            .back-link:hover {
+                color: var(--on-surface, var(--text-primary, #e6e1e5)) !important;
+            }
+
             .top-controls-bar {
                 position: relative;
                 width: 100%;
@@ -2463,11 +2562,14 @@
                 grid-template-columns: 1fr auto 1fr;
                 align-items: center;
                 padding: 0.85rem 1.5rem;
+                height: 61.6px !important;
+                min-height: 61.6px !important;
+                max-height: 61.6px !important;
                 background: var(--background, #121016);
                 border-bottom: 1px solid var(--outline, rgba(255, 255, 255, 0.08));
                 user-select: none;
                 -webkit-user-select: none;
-                box-sizing: border-box;
+                box-sizing: border-box !important;
                 flex-shrink: 0;
             }
             :root.light-mode .top-controls-bar {
@@ -2475,16 +2577,20 @@
                 border-bottom-color: rgba(0, 0, 0, 0.08);
             }
             .brand-pill {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.55rem;
-                font-size: 0.92rem;
-                font-weight: 700;
-                color: var(--on-surface);
-                letter-spacing: -0.01em;
-                justify-self: flex-start;
-                text-decoration: none;
-                flex-shrink: 0;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 0.55rem !important;
+                font-size: 0.92rem !important;
+                font-weight: 700 !important;
+                color: var(--on-surface) !important;
+                letter-spacing: -0.01em !important;
+                justify-self: flex-start !important;
+                text-decoration: none !important;
+                flex-shrink: 0 !important;
+                height: 28px !important;
+                min-height: 28px !important;
+                max-height: 28px !important;
+                box-sizing: border-box !important;
             }
             .controls-group {
                 display: flex;
@@ -2592,9 +2698,14 @@
                 border-radius: 14px;
                 padding: 6px;
                 z-index: 2000;
-                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+                box-shadow: none;
                 backdrop-filter: blur(12px);
                 -webkit-backdrop-filter: blur(12px);
+                animation: m3DropdownBounce 0.2s cubic-bezier(0.2, 0, 0, 1);
+            }
+            @keyframes m3DropdownBounce {
+                from { opacity: 0; transform: translateY(-4px); }
+                to { opacity: 1; transform: translateY(0); }
             }
             .hdr-dropdown-menu::before {
                 content: '';
@@ -2809,20 +2920,32 @@
                 background: rgba(136, 89, 255, 0.12);
                 color: var(--primary, #8859ff);
             }
-            }
             .pfp-wrapper-small {
-                width: 28px;
-                height: 28px;
-                clip-path: url('#active-clip');
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                flex-shrink: 0;
+                width: 28px !important;
+                height: 28px !important;
+                min-width: 28px !important;
+                min-height: 28px !important;
+                max-width: 28px !important;
+                max-height: 28px !important;
+                clip-path: url('#active-clip') !important;
+                -webkit-clip-path: url('#active-clip') !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                flex-shrink: 0 !important;
+                overflow: hidden !important;
             }
-            .pfp-wrapper-small img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
+            .pfp-wrapper-small img,
+            .pfp-wrapper-small .pfp {
+                width: 100% !important;
+                height: 100% !important;
+                max-width: 28px !important;
+                max-height: 28px !important;
+                object-fit: cover !important;
+                display: block !important;
+                user-select: none;
+                -webkit-user-select: none;
+                -webkit-user-drag: none;
             }
             .site-footer {
                 width: 100%;
@@ -2835,6 +2958,20 @@
                 box-sizing: border-box;
                 font-family: 'Google Sans Flex', 'Google Sans', system-ui, -apple-system, sans-serif;
                 color: var(--on-surface-variant, #cac4d0);
+                -webkit-user-select: none !important;
+                user-select: none !important;
+                -webkit-touch-callout: none !important;
+            }
+            .site-footer,
+            .site-footer * {
+                -webkit-user-select: none !important;
+                user-select: none !important;
+                -webkit-touch-callout: none !important;
+            }
+            .site-footer::selection,
+            .site-footer *::selection {
+                background: transparent !important;
+                color: inherit !important;
             }
             :root.light-mode .site-footer {
                 background-color: rgba(247, 245, 249, 0.75);
@@ -2985,19 +3122,25 @@
                     display: inline-flex !important;
                 }
                 .top-controls-bar {
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    padding: 0.6rem 0.85rem;
-                    gap: 0.4rem;
-                    width: 100%;
-                    max-width: 100vw;
-                    box-sizing: border-box;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: space-between !important;
+                    padding: 0.6rem 0.85rem !important;
+                    gap: 0.4rem !important;
+                    width: 100% !important;
+                    max-width: 100vw !important;
+                    height: 48px !important;
+                    min-height: 48px !important;
+                    max-height: 48px !important;
+                    box-sizing: border-box !important;
                 }
                 .brand-pill {
-                    gap: 0.4rem;
-                    font-size: 0.85rem;
-                    flex-shrink: 0;
+                    gap: 0.4rem !important;
+                    font-size: 0.85rem !important;
+                    flex-shrink: 0 !important;
+                    height: 28px !important;
+                    min-height: 28px !important;
+                    max-height: 28px !important;
                 }
                 .controls-group {
                     display: flex;
@@ -3018,21 +3161,25 @@
                     position: relative !important;
                     top: auto !important;
                     left: auto !important;
-                    margin: 1rem 1.25rem 0.5rem !important;
+                    margin: 0.6rem 0.85rem 0.4rem !important;
                     display: inline-flex !important;
                     align-self: flex-start !important;
                 }
             }
             @media (max-width: 480px) {
                 .top-controls-bar {
-                    padding: 0.5rem 0.65rem;
-                    gap: 0.3rem;
+                    padding: 0.5rem 0.65rem !important;
+                    gap: 0.3rem !important;
+                    height: 44px !important;
+                    min-height: 44px !important;
+                    max-height: 44px !important;
+                    box-sizing: border-box !important;
                 }
                 .control-btn {
                     padding: 5px 8px;
                 }
                 .back-link {
-                    margin: 0.85rem 1rem 0.4rem !important;
+                    margin: 0.5rem 0.65rem 0.4rem !important;
                 }
             }
         `;
@@ -3458,6 +3605,23 @@
                 }
             });
         }
+
+        function updateHeaderSpacing() {
+            const header = document.querySelector('.top-controls-bar');
+            const brandPill = header ? header.querySelector('.brand-pill') : null;
+            if (header && brandPill) {
+                const headerRect = header.getBoundingClientRect();
+                const brandRect = brandPill.getBoundingClientRect();
+                const spacing = Math.max(headerRect.bottom - brandRect.bottom, 0);
+                const headerHeight = headerRect.height;
+                document.documentElement.style.setProperty('--astrong-header-height', `${headerHeight}px`);
+                document.documentElement.style.setProperty('--astrong-header-spacing', `${spacing}px`);
+                document.documentElement.style.setProperty('--astrong-header-left', `${brandRect.left}px`);
+            }
+        }
+        updateHeaderSpacing();
+        window.addEventListener('resize', updateHeaderSpacing);
+        window.addEventListener('orientationchange', updateHeaderSpacing);
     }
 
     function initUniversalFooter() {

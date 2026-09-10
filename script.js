@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Pre-sample and align points for all shapes
         const numPoints = 120;
         const shapePoints = {};
-        let currentShapeIndex = 3; // Default to 'nine-sided-cookie'
+        let currentShapeIndex = 2; // Default to 'nine-sided-cookie'
 
         const alignPoints = (points) => {
             let minD = Infinity;
@@ -203,7 +203,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             autoCycleInterval = setInterval(() => {
                 cycleShape();
-            }, 7500);
+            }, 5000);
         };
         const stopAutoCycle = () => {
             if (autoCycleInterval) {

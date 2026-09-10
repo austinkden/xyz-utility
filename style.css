@@ -46,7 +46,7 @@ img {
     background: var(--highlight-bg);
 }
 
-/* Custom Scrollbars */
+/* Custom Scrollbars - Theme Responsive & Rounded */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -57,18 +57,42 @@ img {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: color-mix(in srgb, var(--on-surface) 16%, transparent);
-    border-radius: 4px;
+    background: color-mix(in srgb, var(--on-surface, #e6e1e5) 18%, transparent);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    transition: background-color 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--primary);
+    background: var(--primary, #8859ff);
+    border: 1px solid transparent;
+    background-clip: padding-box;
 }
 
-/* Firefox Support */
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+:root.light-mode ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--on-surface, #1d1b20) 22%, transparent);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+:root.light-mode ::-webkit-scrollbar-thumb:hover {
+    background: var(--primary, #8859ff);
+    border: 1px solid transparent;
+    background-clip: padding-box;
+}
+
 * {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--on-surface) 16%, transparent) transparent;
+    scrollbar-color: color-mix(in srgb, var(--on-surface, #e6e1e5) 18%, transparent) transparent;
+}
+
+:root.light-mode * {
+    scrollbar-color: color-mix(in srgb, var(--on-surface, #1d1b20) 22%, transparent) transparent;
 }
 
 .pfp-wrapper,
@@ -118,6 +142,48 @@ body {
     user-select: none;
 }
 
+.brand-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--on-surface);
+    letter-spacing: -0.01em;
+    justify-self: flex-start;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.pfp-wrapper-small {
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    min-height: 28px !important;
+    max-width: 28px !important;
+    max-height: 28px !important;
+    clip-path: url('#active-clip') !important;
+    -webkit-clip-path: url('#active-clip') !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+    overflow: hidden !important;
+}
+
+.pfp-wrapper-small img,
+.pfp-wrapper-small .pfp {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 28px !important;
+    max-height: 28px !important;
+    object-fit: cover !important;
+    display: block !important;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+}
+
 .pfp-icon-content {
     width: 100%;
     height: 100%;
@@ -144,8 +210,8 @@ body {
 
 .back-link {
     position: absolute;
-    top: 75px;
-    left: 30px;
+    top: calc(var(--astrong-header-height, 61.6px) + var(--astrong-header-spacing, 17.2px));
+    left: var(--astrong-header-left, 1.5rem);
     z-index: 1000;
     display: inline-flex;
     align-items: center;
@@ -293,7 +359,7 @@ body {
         left: auto;
         align-self: flex-start;
         width: auto;
-        margin: 1rem 1.25rem 0.5rem;
+        margin: 0.6rem 0.85rem 0.4rem;
     }
 
     .pfp-wrapper {
