@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     reportData = convertNwsToReport(nwsData, queryIcao);
                 }
             } catch (nwsErr) {
-                console.warn("Direct NWS fetch failed/unsupported:", nwsErr);
+                console.warn("[METAR] Direct NWS fetch failed/unsupported:", nwsErr);
             }
 
             // Stage 2: AviationWeather.gov via CORS proxies (global backup)
@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 } catch (directErr) {
-                    console.warn("Direct METAR fetch failed (CORS), trying allorigins proxy:", directErr);
+                    console.warn("[METAR] Direct METAR fetch failed (CORS), trying allorigins proxy:", directErr);
                     try {
                         const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
                         const response = await fetch(proxyUrl);
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         }
                     } catch (proxyErr) {
-                        console.warn("AllOrigins fallback failed, trying corsproxy.io:", proxyErr);
+                        console.warn("[METAR] AllOrigins fallback failed, trying corsproxy.io:", proxyErr);
                         try {
                             const secondProxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
                             const response = await fetch(secondProxyUrl);
@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 }
                             }
                         } catch (secProxyErr) {
-                            console.warn("corsproxy.io fallback failed:", secProxyErr);
+                            console.warn("[METAR] corsproxy.io fallback failed:", secProxyErr);
                         }
                     }
                 }
@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Stage 3: VATSIM METAR API (CORS supported natively, global, raw text fallback)
             if (!reportData) {
-                console.warn("All proxies failed, falling back to VATSIM raw METAR...");
+                console.warn("[METAR] All proxies failed, falling back to VATSIM raw METAR...");
                 try {
                     const vatsimUrl = `https://metar.vatsim.net/metar.php?id=${queryIcao}`;
                     const response = await fetch(vatsimUrl);
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 } catch (vatsimErr) {
-                    console.error("VATSIM fallback failed:", vatsimErr);
+                    console.error("[METAR] VATSIM fallback failed:", vatsimErr);
                 }
             }
 
@@ -246,9 +246,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`Failed to retrieve weather data for station "${queryIcao}".`);
             }
 
+            console.log(`[METAR] Weather report loaded for ${queryIcao}`);
             displayWeather(reportData);
         } catch (err) {
-            console.error('METAR Fetch Error:', err);
+            console.error('[METAR] Fetch Error:', err);
             showError(err.message || "Failed to retrieve weather data. Please try again.");
         } finally {
             loading.style.display = 'none';

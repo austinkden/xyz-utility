@@ -175,9 +175,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 copyBtn.classList.remove('copied');
                 copyBtn.innerHTML = copyIconHTML;
                 copyBtn.setAttribute('aria-label', 'Copy password to clipboard');
-            }, 1500);
+            console.log('[Password] Password copied to clipboard');
         }).catch(err => {
-            console.error('Failed to copy text: ', err);
+            console.error('[Password] Failed to copy text:', err);
         });
     }
 

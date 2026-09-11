@@ -67,12 +67,12 @@ async function syncTime() {
                 const serverTime = parseFloat(match[1]) * 1000;
                 const clientTimeMid = date0 + (rtt / 2);
                 clockOffset = serverTime - clientTimeMid;
-                console.log(`Synced via Same-Origin Cloudflare Trace! Offset: ${clockOffset.toFixed(2)}ms, RTT: ${rtt.toFixed(2)}ms`);
+                console.log(`[Time Sync] Synced via Same-Origin Cloudflare Trace (Offset: ${clockOffset.toFixed(2)}ms, RTT: ${rtt.toFixed(2)}ms)`);
                 return; // Early return since Cloudflare Trace is extremely accurate and authoritative
             }
         }
     } catch (error) {
-        console.warn('Same-Origin Cloudflare Trace sync unavailable (expected in local dev):', error.message);
+        console.warn('[Time Sync] Same-Origin Cloudflare Trace sync unavailable (expected in local dev):', error.message);
     }
 
     // 2. Fall back to querying public CORS-enabled APIs.
@@ -108,7 +108,7 @@ async function syncTime() {
             const offset = serverTime - clientTimeMid;
             return { name: server.name, offset, rtt };
         } catch (error) {
-            console.warn(`Fallback time server sync failed for ${server.name}:`, error.message);
+            console.warn(`[Time Sync] Fallback server sync failed for ${server.name}:`, error.message);
             return null;
         }
     });
@@ -120,10 +120,10 @@ async function syncTime() {
         const avgOffset = sumOffset / results.length;
         const avgRtt = results.reduce((acc, curr) => acc + curr.rtt, 0) / results.length;
 
-        console.log(`Synced via fallback! Avg offset: ${avgOffset.toFixed(2)}ms. Avg RTT: ${avgRtt.toFixed(2)}ms. Active servers: ${results.length}/${fallbackServers.length}`);
+        console.log(`[Time Sync] Synced via fallback servers (Avg offset: ${avgOffset.toFixed(2)}ms, Avg RTT: ${avgRtt.toFixed(2)}ms, Servers: ${results.length}/${fallbackServers.length})`);
         clockOffset = avgOffset;
     } else {
-        console.warn('All time servers failed to sync. Falling back to local clock (Offset: 0ms).');
+        console.warn('[Time Sync] All time servers failed to sync. Falling back to local clock (Offset: 0ms).');
         clockOffset = 0;
     }
 }

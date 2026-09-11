@@ -1,5 +1,7 @@
 // universal.js - Loads and applies the persistent accent theme across all pages
 (function () {
+    console.log('%c[astrong.xyz]%c Universal runtime initialized (%s)', 'color: #8859ff; font-weight: bold;', 'color: inherit;', window.location.pathname);
+
     // Prevent 'Confirm Form Resubmission' dialog on page reload
     if (window.history && window.history.replaceState) {
         window.history.replaceState(null, null, window.location.href);
@@ -883,6 +885,7 @@
             document.documentElement.style.setProperty('--primary-container', theme.container);
             document.documentElement.style.setProperty('--on-primary', theme.onPrimary);
             document.documentElement.style.setProperty('--on-primary-container', theme.onPrimaryContainer);
+            console.log(`[Theme] Applied "${accent}" accent in ${mode} mode`);
         }
 
         try {
@@ -901,7 +904,7 @@
                 setThemeCookie('astrong_mode', mode);
             }
         } catch (e) {
-            console.error('Error syncing theme settings:', e);
+            console.error('[Theme] Error syncing theme settings:', e);
         }
 
         syncSettingsUI(accent, mode);
@@ -922,12 +925,15 @@
 
         const accentSelect = document.getElementById('accent-select');
         if (accentSelect) {
-            const whiteOption = accentSelect.querySelector('.option-white');
+            const optionsEl = document.querySelector('.select-options');
+            const optionsScope = optionsEl || accentSelect;
+
+            const whiteOption = optionsScope.querySelector('.option-white');
             if (whiteOption) {
                 whiteOption.textContent = mode === 'light' ? 'Black' : 'White';
             }
 
-            const options = accentSelect.querySelectorAll('.select-option');
+            const options = optionsScope.querySelectorAll('.select-option');
             options.forEach(opt => {
                 if (opt.getAttribute('data-value') === accent) {
                     opt.classList.add('selected');
@@ -936,7 +942,7 @@
                 }
             });
 
-            const activeOption = accentSelect.querySelector(`.select-option[data-value="${accent}"]`);
+            const activeOption = optionsScope.querySelector(`.select-option[data-value="${accent}"]`);
             const triggerText = accentSelect.querySelector('.select-trigger-text');
             if (activeOption && triggerText) {
                 triggerText.textContent = activeOption.textContent;
@@ -957,6 +963,7 @@
         if ((e.metaKey || e.ctrlKey) && (e.code === 'KeyK' || (e.key && e.key.toLowerCase() === 'k'))) {
             e.preventDefault();
             e.stopPropagation();
+            console.log('[Shortcuts] Command Palette shortcut (Ctrl+K/Cmd+K) triggered');
             if (typeof initCommandPalette === 'function') {
                 initCommandPalette();
             }
@@ -998,6 +1005,7 @@
             try { localStorage.setItem('astrong_accent', nextAccent); } catch (e) { }
         }
         setThemeCookie('astrong_accent', nextAccent);
+        console.log(`[Theme] Cycled accent to "${nextAccent}"`);
         applyTheme(nextAccent);
 
         // Update dot selection UI on homepage if we are on it
@@ -1170,6 +1178,7 @@
             }
 
             if (devId && devId !== '--------') {
+                console.log(`[Device] Copied Device ID to clipboard: ${devId}`);
                 const notify = () => {
                     if (window.showToast) {
                         window.showToast('Copied Device ID to clipboard', 'success');
@@ -1215,6 +1224,7 @@
 
             if (versionClickCount >= 3) {
                 versionClickCount = 0;
+                console.log('[Navigation] Triple click detected on version tag. Opening control panel...');
                 window.location.href = 'https://control.astrong.xyz';
             } else {
                 versionClickTimer = setTimeout(() => {
@@ -1975,7 +1985,7 @@
                             const text = await navigator.clipboard.readText();
                             insertTextAtCursor(target, text);
                         } catch (err) {
-                            console.error('Failed to paste:', err);
+                            console.error('[Context Menu] Failed to paste:', err);
                             document.execCommand('paste');
                         }
                     }
@@ -2426,6 +2436,7 @@
         });
 
         function openCommandPalette() {
+            console.log('[Command Palette] Opened');
             modal.classList.add('active');
             modal.setAttribute('aria-hidden', 'false');
             input.value = '';
@@ -2435,6 +2446,7 @@
         }
 
         function closeCommandPalette() {
+            console.log('[Command Palette] Closed');
             modal.classList.remove('active');
             modal.setAttribute('aria-hidden', 'true');
         }
@@ -3654,10 +3666,12 @@
         }
 
         function openDrawer() {
+            console.log('[Navigation] Mobile drawer opened');
             document.body.classList.add('mobile-drawer-open');
         }
 
         function closeDrawer() {
+            console.log('[Navigation] Mobile drawer closed');
             document.body.classList.remove('mobile-drawer-open');
         }
 
@@ -3846,6 +3860,7 @@
         function openSettingsModal() {
             const modal = document.getElementById('settings-modal');
             if (!modal) return;
+            console.log('[Modal] Settings modal opened');
             modal.classList.add('active');
             modal.setAttribute('aria-hidden', 'false');
 
@@ -3859,6 +3874,7 @@
         function closeSettingsModal() {
             const modal = document.getElementById('settings-modal');
             if (modal) {
+                console.log('[Modal] Settings modal closed');
                 modal.classList.remove('active');
                 modal.setAttribute('aria-hidden', 'true');
             }
@@ -3871,6 +3887,7 @@
         function openHelpModal() {
             const modal = document.getElementById('help-modal');
             if (!modal) return;
+            console.log('[Modal] Help & shortcuts modal opened');
             modal.classList.add('active');
             modal.setAttribute('aria-hidden', 'false');
 
@@ -3883,6 +3900,7 @@
         function closeHelpModal() {
             const modal = document.getElementById('help-modal');
             if (modal) {
+                console.log('[Modal] Help & shortcuts modal closed');
                 modal.classList.remove('active');
                 modal.setAttribute('aria-hidden', 'true');
             }

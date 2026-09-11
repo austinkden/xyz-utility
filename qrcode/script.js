@@ -65,8 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             URL.revokeObjectURL(blobUrl);
             window.showToast("QR Code downloaded!");
+            console.log('[QRCode] QR Code image downloaded');
         } catch (err) {
-            console.error("Download error:", err);
+            console.error("[QRCode] Download error:", err);
             window.showToast("Failed to download image.");
         }
     });
@@ -76,8 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await navigator.clipboard.writeText(qrImage.src);
             window.showToast("QR Code URL copied to clipboard!");
+            console.log('[QRCode] QR Code URL copied to clipboard');
         } catch (err) {
-            console.error("Clipboard error:", err);
+            console.error("[QRCode] Clipboard copy error:", err);
             window.showToast("Failed to copy URL.");
         }
     });
