@@ -733,7 +733,6 @@
         const minDuration = 100; // minimum duration in ms (reduced from 400ms for faster page loads)
 
         let isWindowLoaded = false;
-        let isSpotifyDecided = !document.getElementById('spotify-widget');
         let isScheduleDecided = !window.__ASTRONG_WAIT_FOR_SCHEDULE__ || window.__ASTRONG_SCHEDULE_READY__ === true;
         let hideTimeoutId = null;
 
@@ -741,7 +740,7 @@
             if (window.__ASTRONG_BANNED__) return;
             const isBanVerified = window.__ASTRONG_BAN_VERIFIED__ === true;
             const isScheduleReady = isScheduleDecided || !window.__ASTRONG_WAIT_FOR_SCHEDULE__ || window.__ASTRONG_SCHEDULE_READY__ === true;
-            if (isWindowLoaded && isSpotifyDecided && isBanVerified && isScheduleReady) {
+            if (isWindowLoaded && isBanVerified && isScheduleReady) {
                 const elapsed = performance.now() - startTime;
                 const remaining = Math.max(0, minDuration - elapsed);
                 if (hideTimeoutId) clearTimeout(hideTimeoutId);
@@ -775,7 +774,6 @@
                 prepareLoaderForDisplay();
                 startTime = performance.now();
                 isWindowLoaded = true;
-                isSpotifyDecided = true;
                 isScheduleDecided = true;
                 window.__ASTRONG_BAN_VERIFIED__ = true;
                 window.__ASTRONG_SCHEDULE_READY__ = true;
@@ -798,23 +796,11 @@
             tryHideLoader();
         });
 
-        if (!isSpotifyDecided) {
-            window.addEventListener('spotify-decided', () => {
-                isSpotifyDecided = true;
-                tryHideLoader();
-            });
-            if (window.spotifyDecided) {
-                isSpotifyDecided = true;
-                tryHideLoader();
-            }
-        }
-
         // Safety fallback in case network resources take long
         const fallbackDelay = window.__ASTRONG_WAIT_FOR_SCHEDULE__ ? 2000 : 350;
         setTimeout(() => {
             if (loader && !loader.classList.contains('fade-out')) {
                 isWindowLoaded = true;
-                isSpotifyDecided = true;
                 isScheduleDecided = true;
                 window.__ASTRONG_BAN_VERIFIED__ = true;
                 window.__ASTRONG_SCHEDULE_READY__ = true;
