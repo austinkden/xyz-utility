@@ -301,13 +301,12 @@ input[type="range"] {
     /* Thin slider track */
     background: linear-gradient(to right,
             var(--primary) 0%,
-            var(--primary) var(--slider-percent, 50%),
-            var(--surface-variant) var(--slider-percent, 50%),
+            var(--primary) var(--slider-percent, calc(33.333% + 3.333px)),
+            var(--surface-variant) var(--slider-percent, calc(33.333% + 3.333px)),
             var(--surface-variant) 100%);
     border-radius: 2px;
     cursor: pointer;
     outline: none;
-    transition: background-color 0.1s ease;
 }
 
 /* Webkit browser thumb */

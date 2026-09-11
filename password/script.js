@@ -175,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 copyBtn.classList.remove('copied');
                 copyBtn.innerHTML = copyIconHTML;
                 copyBtn.setAttribute('aria-label', 'Copy password to clipboard');
+            }, 2000);
             console.log('[Password] Password copied to clipboard');
         }).catch(err => {
             console.error('[Password] Failed to copy text:', err);
@@ -187,15 +188,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const max = lengthSlider.max ? parseFloat(lengthSlider.max) : 32;
         const val = parseFloat(lengthSlider.value);
         const percent = ((val - min) / (max - min)) * 100;
-        lengthSlider.style.setProperty('--slider-percent', `${percent}%`);
+        // Thumb width is 20px (radius 10px). Adjust for thumb center alignment across slider track.
+        const offset = (0.5 - percent / 100) * 20;
+        lengthSlider.style.setProperty('--slider-percent', `calc(${percent}% + ${offset}px)`);
     }
 
     // Event Listeners
-    lengthSlider.addEventListener('input', (e) => {
+    const onSliderInput = (e) => {
         lengthVal.textContent = e.target.value;
         updateSliderTrack();
         generatePassword();
-    });
+    };
+    lengthSlider.addEventListener('input', onSliderInput);
+    lengthSlider.addEventListener('change', onSliderInput);
 
     [optUppercase, optLowercase, optNumbers, optSymbols].forEach(element => {
         element.addEventListener('change', generatePassword);
@@ -208,3 +213,4 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSliderTrack();
     generatePassword();
 });
+
