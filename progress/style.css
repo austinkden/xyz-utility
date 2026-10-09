@@ -122,7 +122,8 @@ body {
     margin-bottom: -10px;
     width: clamp(80px, 8vw, 100px);
     height: clamp(80px, 8vw, 100px);
-    clip-path: url('#active-clip');
+    border-radius: 50%;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;

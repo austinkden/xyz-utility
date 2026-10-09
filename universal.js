@@ -680,6 +680,7 @@
                 #astrong-loading-screen.fade-out {
                     opacity: 0;
                     visibility: hidden;
+                    pointer-events: none !important;
                 }
                 .loading-spinner {
                     width: 58px;
@@ -736,13 +737,71 @@
 
         let isWindowLoaded = false;
         let isScheduleDecided = !window.__ASTRONG_WAIT_FOR_SCHEDULE__ || window.__ASTRONG_SCHEDULE_READY__ === true;
+        let isPrerequisitesReady = false;
         let hideTimeoutId = null;
+
+        function checkHomeReady() {
+            if (document.getElementById('live-status-bar') || window.__ASTRONG_WAIT_FOR_HOME_READY__) {
+                return window.__ASTRONG_HOME_READY__ === true;
+            }
+            return true;
+        }
+
+        async function waitPrerequisites() {
+            const promises = [];
+
+            // 1. Wait for document fonts
+            if (document.fonts && document.fonts.ready) {
+                promises.push(document.fonts.ready.catch(() => {}));
+            }
+
+            // 2. Wait for profile picture image(s) to load & decode
+            const pfps = Array.from(document.querySelectorAll('.pfp-wrapper img, .pfp-wrapper-small img, img.pfp'));
+            pfps.forEach(img => {
+                if (!img.complete) {
+                    promises.push(new Promise(resolve => {
+                        img.addEventListener('load', resolve, { once: true });
+                        img.addEventListener('error', resolve, { once: true });
+                        if (typeof img.decode === 'function') {
+                            img.decode().then(resolve).catch(resolve);
+                        }
+                    }));
+                }
+            });
+
+            // 3. Wait for homepage availability status if on homepage
+            if (document.getElementById('live-status-bar') || window.__ASTRONG_WAIT_FOR_HOME_READY__) {
+                if (window.__ASTRONG_HOME_READY__ !== true) {
+                    promises.push(new Promise(resolve => {
+                        window.addEventListener('astrong-home-ready', resolve, { once: true });
+                    }));
+                }
+            }
+
+            try {
+                await Promise.race([
+                    Promise.allSettled(promises),
+                    new Promise(resolve => setTimeout(resolve, 3500))
+                ]);
+            } catch (e) {}
+
+            isPrerequisitesReady = true;
+            tryHideLoader();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', waitPrerequisites);
+        } else {
+            waitPrerequisites();
+        }
 
         function tryHideLoader() {
             if (window.__ASTRONG_BANNED__) return;
             const isBanVerified = window.__ASTRONG_BAN_VERIFIED__ === true;
             const isScheduleReady = isScheduleDecided || !window.__ASTRONG_WAIT_FOR_SCHEDULE__ || window.__ASTRONG_SCHEDULE_READY__ === true;
-            if (isWindowLoaded && isBanVerified && isScheduleReady) {
+            const isHomeReady = checkHomeReady();
+
+            if (isWindowLoaded && isBanVerified && isScheduleReady && isPrerequisitesReady && isHomeReady) {
                 const elapsed = performance.now() - startTime;
                 const remaining = Math.max(0, minDuration - elapsed);
                 if (hideTimeoutId) clearTimeout(hideTimeoutId);
@@ -777,8 +836,10 @@
                 startTime = performance.now();
                 isWindowLoaded = true;
                 isScheduleDecided = true;
+                isPrerequisitesReady = true;
                 window.__ASTRONG_BAN_VERIFIED__ = true;
                 window.__ASTRONG_SCHEDULE_READY__ = true;
+                window.__ASTRONG_HOME_READY__ = true;
                 tryHideLoader();
             }
         });
@@ -798,14 +859,20 @@
             tryHideLoader();
         });
 
-        // Safety fallback in case network resources take long
-        const fallbackDelay = window.__ASTRONG_WAIT_FOR_SCHEDULE__ ? 2000 : 350;
+        window.addEventListener('astrong-home-ready', () => {
+            tryHideLoader();
+        });
+
+        // Safety fallback in case network resources take unusually long
+        const fallbackDelay = 4000;
         setTimeout(() => {
             if (loader && !loader.classList.contains('fade-out')) {
                 isWindowLoaded = true;
                 isScheduleDecided = true;
+                isPrerequisitesReady = true;
                 window.__ASTRONG_BAN_VERIFIED__ = true;
                 window.__ASTRONG_SCHEDULE_READY__ = true;
+                window.__ASTRONG_HOME_READY__ = true;
                 tryHideLoader();
             }
         }, fallbackDelay);
@@ -829,7 +896,7 @@
     const isSubdomainHost = window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz');
     const savedAccent = getThemeCookie('astrong_accent') || (!isSubdomainHost ? localStorage.getItem('astrong_accent') : null) || 'purple';
     const savedMode = getThemeCookie('astrong_mode') || (!isSubdomainHost ? localStorage.getItem('astrong_mode') : null) || 'dark';
-    applyTheme(savedAccent, savedMode);
+    let isInitialThemeApplied = false;
 
     function applyTheme(accent, mode) {
         if (!accent) {
@@ -837,6 +904,16 @@
         }
         if (!mode) {
             mode = getThemeCookie('astrong_mode') || (!isSubdomainHost ? localStorage.getItem('astrong_mode') : null) || 'dark';
+        }
+
+        if (isInitialThemeApplied) {
+            document.documentElement.classList.add('theme-switching');
+            if (window.__themeSwitchTimer) clearTimeout(window.__themeSwitchTimer);
+            window.__themeSwitchTimer = setTimeout(() => {
+                document.documentElement.classList.remove('theme-switching');
+            }, 350);
+        } else {
+            isInitialThemeApplied = true;
         }
 
         if (mode === 'light') {
@@ -1147,12 +1224,7 @@
     function initUniversalDomFeatures() {
         syncSettingsUI();
 
-        // A. Inject SVG Cookie path definitions dynamically if needed
-        injectSvgDefs();
-        const wrapper = document.querySelector('.pfp-wrapper');
-        if (wrapper) {
-            initCookieWrapper(wrapper);
-        }
+
 
         // B. Context Menu
         initContextMenu();
@@ -1232,313 +1304,6 @@
                 }, 500);
             }
         });
-    }
-
-    function injectSvgDefs() {
-        if (document.getElementById('astrong-universal-svg-defs') || document.getElementById('active-clip')) return;
-        const svgContainer = document.createElement('div');
-        svgContainer.id = 'astrong-universal-svg-defs';
-            svgContainer.style.position = 'absolute';
-            svgContainer.style.width = '0';
-            svgContainer.style.height = '0';
-            svgContainer.style.overflow = 'hidden';
-            svgContainer.style.pointerEvents = 'none';
-            svgContainer.setAttribute('aria-hidden', 'true');
-            svgContainer.innerHTML = `
-                <svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <clipPath id="nine-sided-cookie" clipPathUnits="objectBoundingBox">
-                            <path d="M0.3955 0.0590C0.4007 0.0547 0.4033 0.0526 0.4057 0.0508C0.4615 0.0081 0.5385 0.0081 0.5943 0.0508C0.5967 0.0526 0.5993 0.0547 0.6045 0.0590C0.6068 0.0609 0.6079 0.0619 0.6091 0.0628C0.6354 0.0837 0.6675 0.0955 0.7010 0.0966C0.7024 0.0966 0.7039 0.0966 0.7069 0.0967C0.7136 0.0968 0.7170 0.0968 0.7199 0.0970C0.7898 0.1005 0.8488 0.1506 0.8644 0.2195C0.8651 0.2224 0.8657 0.2257 0.8670 0.2324C0.8675 0.2353 0.8678 0.2368 0.8681 0.2383C0.8749 0.2713 0.8921 0.3013 0.9170 0.3238C0.9181 0.3248 0.9192 0.3258 0.9215 0.3277C0.9265 0.3321 0.9291 0.3343 0.9313 0.3364C0.9825 0.3845 0.9959 0.4612 0.9640 0.5241C0.9627 0.5267 0.9610 0.5297 0.9577 0.5356C0.9563 0.5382 0.9556 0.5396 0.9549 0.5409C0.9391 0.5706 0.9331 0.6047 0.9379 0.6381C0.9381 0.6396 0.9383 0.6411 0.9388 0.6440C0.9399 0.6507 0.9404 0.6541 0.9408 0.6570C0.9495 0.7272 0.9109 0.7946 0.8465 0.8221C0.8438 0.8232 0.8406 0.8244 0.8343 0.8268C0.8315 0.8279 0.8301 0.8284 0.8288 0.8290C0.7978 0.8415 0.7715 0.8638 0.7539 0.8925C0.7531 0.8937 0.7524 0.8950 0.7508 0.8976C0.7474 0.9034 0.7457 0.9063 0.7441 0.9089C0.7061 0.9682 0.6337 0.9948 0.5668 0.9740C0.5640 0.9732 0.5608 0.9720 0.5545 0.9698C0.5517 0.9688 0.5503 0.9683 0.5489 0.9679C0.5171 0.9573 0.4829 0.9573 0.4511 0.9679C0.4497 0.9683 0.4483 0.9688 0.4455 0.9698C0.4392 0.9720 0.4360 0.9732 0.4332 0.9740C0.3663 0.9948 0.2939 0.9682 0.2559 0.9089C0.2543 0.9063 0.2526 0.9034 0.2492 0.8976C0.2476 0.8950 0.2469 0.8937 0.2461 0.8925C0.2285 0.8638 0.2022 0.8415 0.1712 0.8290C0.1699 0.8284 0.1685 0.8279 0.1657 0.8268C0.1594 0.8244 0.1562 0.8232 0.1535 0.8221C0.0891 0.7946 0.0505 0.7272 0.0592 0.6570C0.0596 0.6541 0.0601 0.6507 0.0612 0.6440C0.0617 0.6411 0.0619 0.6396 0.0621 0.6381C0.0669 0.6047 0.0609 0.5706 0.0451 0.5409C0.0444 0.5396 0.0437 0.5382 0.0423 0.5356C0.0390 0.5297 0.0373 0.5267 0.0360 0.5241C0.0041 0.4612 0.0175 0.3845 0.0687 0.3364C0.0709 0.3343 0.0735 0.3321 0.0785 0.3277C0.0808 0.3258 0.0819 0.3248 0.0830 0.3238C0.1079 0.3013 0.1251 0.2713 0.1319 0.2383C0.1322 0.2368 0.1325 0.2353 0.1330 0.2324C0.1343 0.2257 0.1349 0.2224 0.1356 0.2195C0.1512 0.1506 0.2102 0.1005 0.2801 0.0970C0.2830 0.0968 0.2864 0.0968 0.2931 0.0967C0.2961 0.0966 0.2976 0.0966 0.2990 0.0966C0.3325 0.0955 0.3646 0.0837 0.3909 0.0628C0.3921 0.0619 0.3932 0.0609 0.3955 0.0590Z" />
-                        </clipPath>
-                        <clipPath id="four-sided-cookie" clipPathUnits="objectBoundingBox">
-                            <path d="M0.6154 0.1012C0.7947 0.0233 0.9767 0.2053 0.8988 0.3846L0.8859 0.4142C0.8622 0.4689 0.8622 0.5311 0.8859 0.5858L0.8988 0.6154C0.9767 0.7947 0.7947 0.9767 0.6154 0.8988L0.5858 0.8859C0.5311 0.8622 0.4689 0.8622 0.4142 0.8859L0.3846 0.8988C0.2053 0.9767 0.0233 0.7947 0.1012 0.6154L0.1141 0.5858C0.1378 0.5311 0.1378 0.4689 0.1141 0.4142L0.1012 0.3846C0.0233 0.2053 0.2053 0.0233 0.3846 0.1012L0.4142 0.1141C0.4689 0.1378 0.5311 0.1378 0.5858 0.1141L0.6154 0.1012Z" />
-                        </clipPath>
-                        <clipPath id="six-sided-cookie" clipPathUnits="objectBoundingBox">
-                            <path d="M0.3314 0.0909C0.4253 0.0000 0.5747 0.0000 0.6686 0.0909C0.6973 0.1187 0.7325 0.1390 0.7711 0.1499C0.8970 0.1855 0.9717 0.3145 0.9397 0.4410C0.9299 0.4797 0.9299 0.5203 0.9397 0.5590C0.9717 0.6855 0.8970 0.8145 0.7711 0.8501C0.7325 0.8610 0.6973 0.8813 0.6686 0.9091C0.5747 1.0000 0.4253 1.0000 0.3314 0.9091C0.3027 0.8813 0.2675 0.8610 0.2289 0.8501C0.1030 0.8145 0.0283 0.6855 0.0603 0.5590C0.0701 0.5203 0.0701 0.4797 0.0603 0.4410C0.0283 0.3145 0.1030 0.1855 0.2289 0.1499C0.2675 0.1390 0.3027 0.1187 0.3314 0.0909Z" />
-                        </clipPath>
-                        <clipPath id="sunny" clipPathUnits="objectBoundingBox">
-                            <path d="M0.7702 0.1213C0.8013 0.1234 0.8168 0.1245 0.8294 0.1300C0.8476 0.1379 0.8621 0.1524 0.8700 0.1706C0.8755 0.1832 0.8766 0.1987 0.8787 0.2298L0.8835 0.3008C0.8844 0.3134 0.8848 0.3197 0.8862 0.3257C0.8882 0.3344 0.8916 0.3427 0.8963 0.3502C0.8996 0.3554 0.9038 0.3602 0.9121 0.3696L0.9588 0.4232C0.9793 0.4467 0.9896 0.4585 0.9946 0.4713C1.0018 0.4897 1.0018 0.5103 0.9946 0.5287C0.9896 0.5415 0.9793 0.5533 0.9588 0.5768L0.9121 0.6303C0.9038 0.6399 0.8996 0.6446 0.8963 0.6498C0.8916 0.6573 0.8882 0.6656 0.8862 0.6743C0.8848 0.6803 0.8844 0.6866 0.8835 0.6992L0.8787 0.7702C0.8766 0.8013 0.8755 0.8168 0.8700 0.8294C0.8621 0.8476 0.8476 0.8621 0.8294 0.8700C0.8168 0.8755 0.8013 0.8766 0.7702 0.8787L0.6992 0.8835C0.6866 0.8844 0.6803 0.8848 0.6743 0.8862C0.6656 0.8882 0.6573 0.8916 0.6498 0.8963C0.6446 0.8996 0.6399 0.9038 0.6303 0.9121L0.5768 0.9588C0.5533 0.9793 0.5415 0.9896 0.5287 0.9946C0.5103 1.0018 0.4897 1.0018 0.4713 0.9946C0.4585 0.9896 0.4467 0.9793 0.4232 0.9588L0.3696 0.9121C0.3602 0.9038 0.3554 0.8996 0.3502 0.8963C0.3427 0.8916 0.3344 0.8882 0.3257 0.8862C0.3197 0.8848 0.3134 0.8844 0.3008 0.8835L0.2298 0.8787C0.1987 0.8766 0.1832 0.8755 0.1706 0.8700C0.1524 0.8621 0.1379 0.8476 0.1300 0.8294C0.1245 0.8168 0.1234 0.8013 0.1213 0.7702L0.1165 0.6992C0.1156 0.6866 0.1152 0.6803 0.1138 0.6743C0.1118 0.6656 0.1084 0.6573 0.1037 0.6498C0.1004 0.6446 0.0962 0.6399 0.0879 0.6303L0.0412 0.5768C0.0207 0.5533 0.0104 0.5415 0.0054 0.5287C-0.0018 0.5103 -0.0018 0.4897 0.0054 0.4713C0.0104 0.4585 0.0207 0.4467 0.0412 0.4232L0.0879 0.3696C0.0962 0.3602 0.1004 0.3554 0.1037 0.3502C0.1084 0.3427 0.1118 0.3344 0.1138 0.3257C0.1152 0.3197 0.1156 0.3134 0.1165 0.3008L0.1213 0.2298C0.1234 0.1987 0.1245 0.1832 0.1300 0.1706C0.1379 0.1524 0.1524 0.1379 0.1706 0.1300C0.1832 0.1245 0.1987 0.1234 0.2298 0.1213L0.3008 0.1165C0.3134 0.1156 0.3197 0.1152 0.3257 0.1138C0.3344 0.1118 0.3427 0.1084 0.3502 0.1037C0.3554 0.1004 0.3602 0.0962 0.3696 0.0879L0.4232 0.0412C0.4467 0.0207 0.4585 0.0104 0.4713 0.0054C0.4897 -0.0018 0.5103 -0.0018 0.5287 0.0054C0.5415 0.0104 0.5533 0.0207 0.5768 0.0412L0.6303 0.0879C0.6399 0.0962 0.6446 0.1004 0.6498 0.1037C0.6573 0.1084 0.6656 0.1118 0.6743 0.1138C0.6803 0.1152 0.6866 0.1156 0.6992 0.1165L0.7702 0.1213Z" />
-                        </clipPath>
-                        <clipPath id="twelve-sided-cookie" clipPathUnits="objectBoundingBox">
-                            <path d="M0.4272 0.0308C0.4289 0.0291 0.4297 0.0283 0.4304 0.0276C0.4695 -0.0092 0.5305 -0.0092 0.5696 0.0276C0.5703 0.0283 0.5711 0.0291 0.5728 0.0308C0.5738 0.0318 0.5743 0.0323 0.5748 0.0327C0.5998 0.0566 0.6353 0.0661 0.6688 0.0579C0.6695 0.0578 0.6702 0.0576 0.6715 0.0572C0.6738 0.0566 0.6750 0.0563 0.6760 0.0561C0.7282 0.0438 0.7810 0.0743 0.7964 0.1257C0.7967 0.1266 0.7970 0.1278 0.7977 0.1300C0.7981 0.1314 0.7983 0.1321 0.7984 0.1327C0.8082 0.1659 0.8341 0.1918 0.8673 0.2016C0.8679 0.2017 0.8686 0.2019 0.8700 0.2023C0.8722 0.2030 0.8734 0.2033 0.8743 0.2036C0.9257 0.2190 0.9562 0.2718 0.9439 0.3240C0.9437 0.3250 0.9434 0.3262 0.9428 0.3285C0.9424 0.3298 0.9422 0.3305 0.9421 0.3312C0.9339 0.3647 0.9434 0.4002 0.9673 0.4252C0.9677 0.4257 0.9682 0.4262 0.9692 0.4272C0.9709 0.4289 0.9717 0.4297 0.9724 0.4304C1.0092 0.4695 1.0092 0.5305 0.9724 0.5696C0.9717 0.5703 0.9709 0.5711 0.9692 0.5728C0.9682 0.5738 0.9677 0.5743 0.9673 0.5748C0.9434 0.5998 0.9339 0.6353 0.9421 0.6688C0.9422 0.6695 0.9424 0.6702 0.9428 0.6715C0.9434 0.6738 0.9437 0.6750 0.9439 0.6760C0.9562 0.7282 0.9257 0.7810 0.8743 0.7964C0.8734 0.7967 0.8722 0.7970 0.8700 0.7977C0.8686 0.7981 0.8679 0.7983 0.8673 0.7984C0.8341 0.8082 0.8082 0.8341 0.7984 0.8673C0.7983 0.8679 0.7981 0.8686 0.7977 0.8700C0.7970 0.8722 0.7967 0.8734 0.7964 0.8743C0.7810 0.9257 0.7282 0.9562 0.6760 0.9439C0.6750 0.9437 0.6738 0.9434 0.6715 0.9428C0.6702 0.9424 0.6695 0.9422 0.6688 0.9421C0.6353 0.9339 0.5998 0.9434 0.5748 0.9673C0.5743 0.9677 0.5738 0.9682 0.5728 0.9692C0.5711 0.9709 0.5703 0.9717 0.5696 0.9724C0.5305 1.0092 0.4695 1.0092 0.4304 0.9724C0.4297 0.9717 0.4289 0.9709 0.4272 0.9692C0.4262 0.9682 0.4257 0.9677 0.4252 0.9673C0.4002 0.9434 0.3647 0.9339 0.3312 0.9421C0.3305 0.9422 0.3298 0.9424 0.3285 0.9428C0.3262 0.9434 0.3250 0.9437 0.3240 0.9439C0.2718 0.9562 0.2190 0.9257 0.2036 0.8743C0.2033 0.8734 0.2030 0.8722 0.2023 0.8700C0.2019 0.8686 0.2017 0.8679 0.2016 0.8673C0.1918 0.8341 0.1659 0.8082 0.1327 0.7984C0.1321 0.7983 0.1314 0.7981 0.1300 0.7977C0.1278 0.7970 0.1266 0.7967 0.1257 0.7964C0.0743 0.7810 0.0438 0.7282 0.0561 0.6760C0.0563 0.6750 0.0566 0.6738 0.0572 0.6715C0.0576 0.6702 0.0578 0.6695 0.0579 0.6688C0.0661 0.6353 0.0566 0.5998 0.0327 0.5748C0.0323 0.5743 0.0318 0.5738 0.0308 0.5728C0.0291 0.5711 0.0283 0.5703 0.0276 0.5696C-0.0092 0.5305 -0.0092 0.4695 0.0276 0.4304C0.0283 0.4297 0.0291 0.4289 0.0308 0.4272C0.0318 0.4262 0.0323 0.4257 0.0327 0.4252C0.0566 0.4002 0.0661 0.3647 0.0579 0.3312C0.0578 0.3305 0.0576 0.3298 0.0572 0.3285C0.0566 0.3262 0.0563 0.3250 0.0561 0.3240C0.0438 0.2718 0.0743 0.2190 0.1257 0.2036C0.1266 0.2033 0.1278 0.2030 0.1300 0.2023C0.1314 0.2019 0.1321 0.2017 0.1327 0.2016C0.1659 0.1918 0.1918 0.1659 0.2016 0.1327C0.2017 0.1321 0.2019 0.1314 0.2023 0.1300C0.2030 0.1278 0.2033 0.1266 0.2036 0.1257C0.2190 0.0743 0.2718 0.0438 0.3240 0.0561C0.3250 0.0563 0.3262 0.0566 0.3285 0.0572C0.3298 0.0576 0.3305 0.0578 0.3312 0.0579C0.3647 0.0661 0.4002 0.0566 0.4252 0.0327C0.4257 0.0323 0.4262 0.0318 0.4272 0.0308Z" />
-                        </clipPath>
-                        <clipPath id="active-clip" clipPathUnits="objectBoundingBox">
-                            <path id="active-clip-path" d="M0.3955 0.0590C0.4007 0.0547 0.4033 0.0526 0.4057 0.0508C0.4615 0.0081 0.5385 0.0081 0.5943 0.0508C0.5967 0.0526 0.5993 0.0547 0.6045 0.0590C0.6068 0.0609 0.6079 0.0619 0.6091 0.0628C0.6354 0.0837 0.6675 0.0955 0.7010 0.0966C0.7024 0.0966 0.7039 0.0966 0.7069 0.0967C0.7136 0.0968 0.7170 0.0968 0.7199 0.0970C0.7898 0.1005 0.8488 0.1506 0.8644 0.2195C0.8651 0.2224 0.8657 0.2257 0.8670 0.2324C0.8675 0.2353 0.8678 0.2368 0.8681 0.2383C0.8749 0.2713 0.8921 0.3013 0.9170 0.3238C0.9181 0.3248 0.9192 0.3258 0.9215 0.3277C0.9265 0.3321 0.9291 0.3343 0.9313 0.3364C0.9825 0.3845 0.9959 0.4612 0.9640 0.5241C0.9627 0.5267 0.9610 0.5297 0.9577 0.5356C0.9563 0.5382 0.9556 0.5396 0.9549 0.5409C0.9391 0.5706 0.9331 0.6047 0.9379 0.6381C0.9381 0.6396 0.9383 0.6411 0.9388 0.6440C0.9399 0.6507 0.9404 0.6541 0.9408 0.6570C0.9495 0.7272 0.9109 0.7946 0.8465 0.8221C0.8438 0.8232 0.8406 0.8244 0.8343 0.8268C0.8315 0.8279 0.8301 0.8284 0.8288 0.8290C0.7978 0.8415 0.7715 0.8638 0.7539 0.8925C0.7531 0.8937 0.7524 0.8950 0.7508 0.8976C0.7474 0.9034 0.7457 0.9063 0.7441 0.9089C0.7061 0.9682 0.6337 0.9948 0.5668 0.9740C0.5640 0.9732 0.5608 0.9720 0.5545 0.9698C0.5517 0.9688 0.5503 0.9683 0.5489 0.9679C0.5171 0.9573 0.4829 0.9573 0.4511 0.9679C0.4497 0.9683 0.4483 0.9688 0.4455 0.9698C0.4392 0.9720 0.4360 0.9732 0.4332 0.9740C0.3663 0.9948 0.2939 0.9682 0.2559 0.9089C0.2543 0.9063 0.2526 0.9034 0.2492 0.8976C0.2476 0.8950 0.2469 0.8937 0.2461 0.8925C0.2285 0.8638 0.2022 0.8415 0.1712 0.8290C0.1699 0.8284 0.1685 0.8279 0.1657 0.8268C0.1594 0.8244 0.1562 0.8232 0.1535 0.8221C0.0891 0.7946 0.0505 0.7272 0.0592 0.6570C0.0596 0.6541 0.0601 0.6507 0.0612 0.6440C0.0617 0.6411 0.0619 0.6396 0.0621 0.6381C0.0669 0.6047 0.0609 0.5706 0.0451 0.5409C0.0444 0.5396 0.0437 0.5382 0.0423 0.5356C0.0390 0.5297 0.0373 0.5267 0.0360 0.5241C0.0041 0.4612 0.0175 0.3845 0.0687 0.3364C0.0709 0.3343 0.0735 0.3321 0.0785 0.3277C0.0808 0.3258 0.0819 0.3248 0.0830 0.3238C0.1079 0.3013 0.1251 0.2713 0.1319 0.2383C0.1322 0.2368 0.1325 0.2353 0.1330 0.2324C0.1343 0.2257 0.1349 0.2224 0.1356 0.2195C0.1512 0.1506 0.2102 0.1005 0.2801 0.0970C0.2830 0.0968 0.2864 0.0968 0.2931 0.0967C0.2961 0.0966 0.2976 0.0966 0.2990 0.0966C0.3325 0.0955 0.3646 0.0837 0.3909 0.0628C0.3921 0.0619 0.3932 0.0609 0.3955 0.0590Z" />
-                        </clipPath>
-                    </defs>
-                </svg>
-            `;
-            if (document.body) {
-                document.body.appendChild(svgContainer);
-            } else {
-                document.documentElement.appendChild(svgContainer);
-            }
-    }
-
-    function initCookieWrapper(wrapper) {
-        const img = wrapper.querySelector('img, .pfp-icon-content');
-        if (!img) return;
-
-        const shapes = [
-            'four-sided-cookie',
-            'six-sided-cookie',
-            'nine-sided-cookie',
-            'sunny',
-            'twelve-sided-cookie'
-        ];
-
-        let currentShapeIndex = 2; // default 'nine-sided-cookie'
-
-        const numPoints = 120;
-        const shapePoints = {};
-
-        const alignPoints = (points) => {
-            let minD = Infinity;
-            let startIdx = 0;
-            points.forEach((p, idx) => {
-                const dx = p.x - 0.5;
-                const dy = p.y - 0.0;
-                const d = dx * dx + dy * dy;
-                if (d < minD) {
-                    minD = d;
-                    startIdx = idx;
-                }
-            });
-            return [...points.slice(startIdx), ...points.slice(0, startIdx)];
-        };
-
-        const svgNS = "http://www.w3.org/2000/svg";
-        const tempSvg = document.createElementNS(svgNS, "svg");
-        const tempPath = document.createElementNS(svgNS, "path");
-        tempSvg.appendChild(tempPath);
-        document.body.appendChild(tempSvg);
-
-        shapes.forEach(id => {
-            const clipEl = document.getElementById(id);
-            if (clipEl) {
-                const pathEl = clipEl.querySelector('path');
-                if (pathEl) {
-                    const dAttr = pathEl.getAttribute('d');
-                    tempPath.setAttribute('d', dAttr);
-                    const length = tempPath.getTotalLength();
-                    const points = [];
-                    for (let i = 0; i < numPoints; i++) {
-                        const dist = (i / numPoints) * length;
-                        const p = tempPath.getPointAtLength(dist);
-                        points.push({ x: p.x, y: p.y });
-                    }
-                    shapePoints[id] = alignPoints(points);
-                }
-            }
-        });
-
-        document.body.removeChild(tempSvg);
-
-        const activePathEl = document.getElementById('active-clip-path');
-        let currentPoints = [];
-        const initialShape = shapes[currentShapeIndex];
-        if (shapePoints[initialShape] && activePathEl) {
-            currentPoints = [...shapePoints[initialShape]];
-            const d = 'M' + currentPoints.map(p => `${p.x.toFixed(4)} ${p.y.toFixed(4)}`).join(' L') + 'Z';
-            activePathEl.setAttribute('d', d);
-        }
-
-        const isIconContent = !!wrapper.querySelector('.pfp-icon-content') || !wrapper.querySelector('img');
-
-        if (!isIconContent) {
-            let rotationAngle = 0;
-            let rotationDirection = 1;
-            let speedMultiplier = 1;
-            let lastTime = performance.now();
-
-            const rotateLoop = (time) => {
-                const dt = (time - lastTime) / 1000;
-                lastTime = time;
-                rotationAngle += rotationDirection * 36 * speedMultiplier * dt;
-                rotationAngle = rotationAngle % 360;
-
-                wrapper.style.transform = `rotate(${rotationAngle}deg)`;
-                img.style.transform = `rotate(${-rotationAngle}deg)`;
-
-                requestAnimationFrame(rotateLoop);
-            };
-            requestAnimationFrame(rotateLoop);
-        } else {
-            wrapper.style.transform = '';
-            img.style.transform = '';
-        }
-
-        let animationFrameId = null;
-        const animatePath = (targetPoints, duration = 300) => {
-            const startPoints = [...currentPoints];
-            const startTime = performance.now();
-
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-            }
-
-            const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
-
-            const tick = (now) => {
-                const elapsed = now - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const eased = easeOutCubic(progress);
-
-                currentPoints = startPoints.map((start, idx) => {
-                    const target = targetPoints[idx];
-                    return {
-                        x: start.x + (target.x - start.x) * eased,
-                        y: start.y + (target.y - start.y) * eased
-                    };
-                });
-
-                if (activePathEl) {
-                    const d = 'M' + currentPoints.map(p => `${p.x.toFixed(4)} ${p.y.toFixed(4)}`).join(' L') + 'Z';
-                    activePathEl.setAttribute('d', d);
-                }
-
-                if (progress < 1) {
-                    animationFrameId = requestAnimationFrame(tick);
-                }
-            };
-            animationFrameId = requestAnimationFrame(tick);
-        };
-
-        let speedTimeoutId = null;
-        let decelerateFrameId = null;
-        const fastMultiplier = 6;
-
-        const temporarySpeedUp = () => {
-            if (isIconContent) return;
-            if (speedTimeoutId) clearTimeout(speedTimeoutId);
-            if (decelerateFrameId) cancelAnimationFrame(decelerateFrameId);
-
-            speedMultiplier = fastMultiplier;
-
-            speedTimeoutId = setTimeout(() => {
-                const startTime = performance.now();
-                const duration = 100;
-
-                const decelerate = (now) => {
-                    const elapsed = now - startTime;
-                    const progress = Math.min(elapsed / duration, 1);
-                    speedMultiplier = fastMultiplier + (1 - fastMultiplier) * progress;
-
-                    if (progress < 1) {
-                        decelerateFrameId = requestAnimationFrame(decelerate);
-                    } else {
-                        speedMultiplier = 1;
-                    }
-                };
-                decelerateFrameId = requestAnimationFrame(decelerate);
-            }, 100);
-        };
-
-        // Shape change only (no direction change)
-        const cycleShape = () => {
-            currentShapeIndex = (currentShapeIndex + 1) % shapes.length;
-            const targetShape = shapes[currentShapeIndex];
-            if (shapePoints[targetShape]) {
-                animatePath(shapePoints[targetShape]);
-            }
-        };
-
-        // Direction change only
-        const reverseRotation = () => {
-            if (isIconContent) return;
-            rotationDirection *= -1;
-        };
-
-        let longPressTimer = null;
-        let isLongPress = false;
-        let startX = 0, startY = 0;
-        let hasReversedThisPress = false;
-
-        // Long press → reverse direction (mobile equivalent of right-click)
-        wrapper.addEventListener('pointerdown', (e) => {
-            if (isIconContent) return;
-            if (e.pointerType === 'mouse' && e.button !== 0) return;
-            isLongPress = false;
-            hasReversedThisPress = false;
-            startX = e.clientX;
-            startY = e.clientY;
-            if (e.pointerType !== 'mouse') {
-                longPressTimer = setTimeout(() => {
-                    isLongPress = true;
-                    if (!hasReversedThisPress) {
-                        hasReversedThisPress = true;
-                        reverseRotation();
-                        temporarySpeedUp();
-                    }
-                }, 250);
-            }
-        });
-
-        wrapper.addEventListener('pointerup', () => {
-            if (longPressTimer) clearTimeout(longPressTimer);
-        });
-
-        wrapper.addEventListener('pointercancel', () => {
-            if (longPressTimer) clearTimeout(longPressTimer);
-        });
-
-        wrapper.addEventListener('pointermove', (e) => {
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-            if (dx * dx + dy * dy > 100) {
-                if (longPressTimer) clearTimeout(longPressTimer);
-            }
-        });
-
-        // Left click → change shape only + speed-up (if rotating)
-        wrapper.addEventListener('click', (e) => {
-            if (e.pointerType === 'mouse' && e.button !== 0) return;
-            if (isLongPress) {
-                isLongPress = false;
-                return;
-            }
-            cycleShape();
-            if (!isIconContent) {
-                temporarySpeedUp();
-            }
-        });
-
-        // Right click → reverse direction only + speed-up
-        wrapper.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (isIconContent) return;
-            const isTouch = e.pointerType === 'touch' || ('ontouchstart' in window && !window.matchMedia('(pointer: fine)').matches);
-            if (isTouch) {
-                if (!hasReversedThisPress) {
-                    hasReversedThisPress = true;
-                    reverseRotation();
-                    temporarySpeedUp();
-                }
-            } else {
-                reverseRotation();
-                temporarySpeedUp();
-            }
-        });
-
-        // Auto-cycle shape on root homepage only every 5 seconds
-        const isRootHome = !isIconContent && (document.title === 'Austin Strong') &&
-            (window.location.pathname === '/' || window.location.pathname === '/index.html' || window.location.pathname === '') &&
-            !window.location.pathname.includes('/schedule') &&
-            !window.location.pathname.includes('/utility') &&
-            !window.location.pathname.includes('/about');
-
-        if (isRootHome) {
-            let autoCycleInterval = setInterval(() => {
-                cycleShape();
-            }, 5000);
-            wrapper.addEventListener('pointerdown', () => {
-                clearInterval(autoCycleInterval);
-                autoCycleInterval = setInterval(() => {
-                    cycleShape();
-                }, 5000);
-            });
-        }
     }
 
     function initContextMenu() {
@@ -2075,6 +1840,16 @@
                 padding-top: 12vh;
                 padding-left: 1rem;
                 padding-right: 1rem;
+                user-select: none !important;
+                -webkit-user-select: none !important;
+            }
+            .cmd-palette-modal *:not(input) {
+                user-select: none !important;
+                -webkit-user-select: none !important;
+            }
+            .cmd-palette-modal input {
+                user-select: text !important;
+                -webkit-user-select: text !important;
             }
             .cmd-palette-modal.active {
                 display: flex;
@@ -2474,7 +2249,6 @@
     }
 
     function injectUniversalNavStyles() {
-        injectSvgDefs();
         if (document.getElementById('astrong-universal-nav-styles')) return;
 
         const navStyle = document.createElement('style');
@@ -2934,13 +2708,22 @@
                 min-height: 28px !important;
                 max-width: 28px !important;
                 max-height: 28px !important;
-                clip-path: url('#active-clip') !important;
-                -webkit-clip-path: url('#active-clip') !important;
+                border-radius: 50% !important;
+                clip-path: none !important;
+                -webkit-clip-path: none !important;
                 display: flex !important;
                 justify-content: center !important;
                 align-items: center !important;
                 flex-shrink: 0 !important;
                 overflow: hidden !important;
+                cursor: pointer !important;
+            }
+            .pfp-wrapper {
+                border-radius: 50% !important;
+                clip-path: none !important;
+                -webkit-clip-path: none !important;
+                overflow: hidden !important;
+                cursor: default !important;
             }
             .pfp-wrapper-small img,
             .pfp-wrapper-small .pfp {
@@ -2953,6 +2736,21 @@
                 user-select: none;
                 -webkit-user-select: none;
                 -webkit-user-drag: none;
+                cursor: pointer !important;
+            }
+            .top-controls-bar .pfp-wrapper-small,
+            .site-footer .pfp-wrapper-small,
+            .site-footer-brand .pfp-wrapper-small,
+            .mobile-drawer .pfp-wrapper-small,
+            .brand-pill .pfp-wrapper-small {
+                cursor: pointer !important;
+            }
+            .top-controls-bar .pfp-wrapper-small img,
+            .site-footer .pfp-wrapper-small img,
+            .site-footer-brand .pfp-wrapper-small img,
+            .mobile-drawer .pfp-wrapper-small img,
+            .brand-pill .pfp-wrapper-small img {
+                cursor: pointer !important;
             }
             .site-footer {
                 width: 100%;
@@ -3027,17 +2825,18 @@
                 line-height: 1.4;
             }
             .site-footer-device {
-                font-family: inherit;
-                font-size: 0.75rem;
+                font-family: 'Google Sans Flex', 'Google Sans', system-ui, -apple-system, sans-serif !important;
+                font-size: 0.8rem;
                 margin-top: 0.4rem;
                 opacity: 0.8;
                 user-select: none;
                 -webkit-user-select: none;
-                font-size: 0.8rem;
                 color: var(--on-surface-variant, #cac4d0);
-                font-family: 'JetBrains Mono', monospace;
             }
             .site-footer-device .device-id-display {
+                font-family: 'JetBrains Mono', monospace !important;
+                font-variant-numeric: tabular-nums;
+                letter-spacing: 0.14em;
                 color: var(--on-surface-variant, #a1a1aa);
                 font-weight: 600;
                 cursor: pointer;
@@ -3203,9 +3002,15 @@
                 justify-content: center;
                 padding: 20px;
                 box-sizing: border-box;
+                user-select: none !important;
+                -webkit-user-select: none !important;
             }
             .settings-modal.active, .help-modal.active {
                 display: flex !important;
+            }
+            .settings-modal *, .help-modal * {
+                user-select: none !important;
+                -webkit-user-select: none !important;
             }
             .settings-modal-overlay, .help-modal-overlay {
                 position: absolute;
@@ -3829,10 +3634,6 @@
                         </button>
                     </div>
                     <div class="help-modal-body">
-                        <section class="help-section">
-                            <h4>Interactive Profile Cookie</h4>
-                            <p>Click/tap the profile picture to cycle its shape. Right-click or long-press it to reverse its rotation direction.</p>
-                        </section>
                         <section class="help-section context-menu-help">
                             <h4>Custom Context Menu</h4>
                             <p>Right-click or long-press anywhere to open the custom menu. Right-click twice in quick succession to open the default browser menu.</p>
@@ -4047,10 +3848,19 @@
         if (!document.body.dataset.universalModalEscBound) {
             document.body.dataset.universalModalEscBound = 'true';
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
+                if (e.key === 'Escape' || e.key === 'Esc' || e.keyCode === 27) {
+                    const cp = document.getElementById('astrong-cmd-palette');
                     const sm = document.getElementById('settings-modal');
                     const hm = document.getElementById('help-modal');
-                    if (sm && sm.classList.contains('active')) {
+                    if (cp && cp.classList.contains('active')) {
+                        if (typeof closeCommandPalette === 'function') {
+                            closeCommandPalette();
+                        } else {
+                            cp.classList.remove('active');
+                            cp.setAttribute('aria-hidden', 'true');
+                        }
+                        e.stopImmediatePropagation();
+                    } else if (sm && sm.classList.contains('active')) {
                         closeSettingsModal();
                         e.stopImmediatePropagation();
                     } else if (hm && hm.classList.contains('active')) {
@@ -4332,6 +4142,24 @@
         `;
         document.body.appendChild(footer);
     }
+
+    // Global Header & Footer Profile Picture Cookie Navigation
+    document.addEventListener('click', (e) => {
+        const pfpCookie = e.target.closest('.top-controls-bar .pfp-wrapper-small, .site-footer .pfp-wrapper-small, .site-footer-brand .pfp-wrapper-small, .mobile-drawer .pfp-wrapper-small, .brand-pill .pfp-wrapper-small');
+        if (pfpCookie) {
+            e.preventDefault();
+            const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+            const isSubHost = window.location.hostname !== 'astrong.xyz' && window.location.hostname.endsWith('astrong.xyz');
+            const isHomePath = window.location.pathname === '/' || window.location.pathname === '/index.html' || window.location.pathname === '';
+            
+            if (!isSubHost && isHomePath) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                const target = (isLocal || !isSubHost) ? '/' : 'https://astrong.xyz';
+                window.location.href = target;
+            }
+        }
+    });
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
